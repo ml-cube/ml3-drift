@@ -36,6 +36,9 @@ jobs:
       - name: 🛎️ Checkout
         uses: actions/checkout@v4
 
+      - name: 📦 Install uv
+        uses: astral-sh/setup-uv@v6
+
       - name: 🏗️ Build distribution
         run: uv build
 
