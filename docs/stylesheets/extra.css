@@ -1,0 +1,41 @@
+:root {
+  --md-primary-fg-color:        #28313F;
+  --md-primary-fg-color--light: #28313F;
+  --md-primary-fg-color--dark:  #28313F;
+  --md-accent-fg-color:        #98BE59;
+}
+.md-content {
+  --md-typeset-a-color: #98BE59;
+}
+
+.green-icon {
+  color: #98BE59;
+}
+
+/* Maximum space for text block */
+.md-grid {
+  max-width: 100%; /* or 100%, if you want to stretch to full-width */
+}
+
+.md-typeset .admonition.code-block,
+.md-typeset details.code-block {
+  border-color: rgb(43, 155, 70);
+}
+.md-typeset .code-block > .admonition-title,
+.md-typeset .code-block > summary {
+  background-color: rgba(43, 155, 70, 0.1);
+}
+.md-typeset .code-block > .admonition-title::before,
+.md-typeset .code-block > summary::before {
+  background-color: rgb(43, 155, 70);
+  -webkit-mask-image: var(--md-admonition-icon--code-block);
+          mask-image: var(--md-admonition-icon--code-block);
+}
+
+.nice-list ul{
+    list-style-type: circle;
+}
+
+.mermaid {
+    text-align: center;
+ }

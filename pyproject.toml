@@ -1,0 +1,58 @@
+[project]
+name = "ml3-drift"
+description = "Easy-to-embed drift detectors"
+authors = [{ name = "ML cube", email = "giovanni.giacometti@mlcube.com" }]
+requires-python = ">=3.10, <3.14"
+dynamic = ["version"]
+license = { text = "Apache-2.0" }
+readme = "README.md"
+
+dependencies = []
+
+# -------------------------------------------------
+# Extra dependencies. This package is designed to be
+# used within one extra at a time, hence we check each
+# extra separately. Remember to update the list of extras
+# in the validation action to ensure tests are run
+# for your new extra
+[project.optional-dependencies]
+
+sklearn = ["scikit-learn>=1.6.1"]
+
+huggingface = ["scipy>=1.15.2", "transformers[torch]>=4.52.3"]
+
+
+# -------------------------------------------------
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "mypy>=1.15.0",
+    "pillow>=11.2.1",      # for image support in tests
+    "pre-commit>=4.1.0",
+    "pytest>=8.3.4",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.9.5",
+    # for docs
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocs-material-extensions>=1.1",
+    "pygments>=2.14",
+    "pymdown-extensions>=9.9.1",
+    "jinja2>=3.0",
+    "markdown>=3.2",
+    "mkdocs-minify-plugin>=0.7.1",
+    "mkdocs-glightbox>=0.3.4",
+    "mkdocs-table-reader-plugin>=2.0.1",
+    "mkdocs-macros-plugin",
+    "openpyxl",
+]
+
+# -------------------------------------------------
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/ml3_drift/__init__.py"

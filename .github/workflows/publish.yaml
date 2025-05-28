@@ -1,0 +1,53 @@
+name: Publish
+
+# This workflow is triggered on every tag push and can also be triggered manually.
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+  workflow_dispatch:
+
+# First, checks out repository, installs dependencies, and runs tests.
+# Then, builds the package and publishes it to PyPI.
+
+jobs:
+  format-lint-test:
+    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+          python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+
+      - name: ✅ validate code
+        env:
+          PY_VERSION: ${{ matrix.python-version }}
+
+        uses: ./.github/actions/validation
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: format-lint-test
+    environment: pypi
+
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Build distribution
+        run: uv build
+
+      - name: 📩 Set PYPI token as env variable for UV
+        run: echo "UV_PUBLISH_TOKEN=${{ secrets.PYPI_TOKEN }}" >> $GITHUB_ENV
+
+      - name: 📢 Publish to PyPI
+        run: uv publish
+
+      - name: 👌 Check upload
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG:1}
+          echo "Version: $VERSION"
+          uv run --with ml3-drift==$VERSION --no-project -- python -c "import ml3_drift"
