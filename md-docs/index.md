@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/logo.jpg" alt="ml3-drift" height="50%">
+  <img src="images/logo.png" alt="ml3-drift" height="50%">
   <h1 align="center">
     Coding in progress!
   </h1>
