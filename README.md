@@ -81,7 +81,7 @@ Drift detected on feature at index 0 by drift detector KSDriftDetector.
  Threshold = 0.005
 ```
 
-You can find other examples in the [examples](examples) folder. For more information, please refer to the [documentation](https://ml-cube.github.io/ml3-drift/).
+You can find other examples in the [examples](https://github.com/ml-cube/ml3-drift/tree/main/examples) folder. For more information, please refer to the [documentation](https://ml-cube.github.io/ml3-drift/).
 
 
 ## 📦 Installation
