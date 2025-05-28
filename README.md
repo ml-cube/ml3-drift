@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ml-cube/ml3-drift/787d2c15e62c4f6f9e72341e1e181a7004a936bf/images/logo.jpg" alt="ml3-drift" height="50%">
+  <img src="https://raw.githubusercontent.com/ml-cube/ml3-drift/refs/heads/main/images/logo.png" alt="ml3-drift" height="50%">
   <h3 align="center">
     Easy-to-embed drift detection
   </h3>
