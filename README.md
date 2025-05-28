@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/logo.jpg" alt="ml3-drift" height="50%">
+  <img src="https://raw.githubusercontent.com/ml-cube/ml3-drift/787d2c15e62c4f6f9e72341e1e181a7004a936bf/images/logo.jpg" alt="ml3-drift" height="50%">
   <h3 align="center">
     Easy-to-embed drift detection
   </h3>
@@ -81,12 +81,12 @@ Drift detected on feature at index 0 by drift detector KSDriftDetector.
  Threshold = 0.005
 ```
 
-You can find other examples in the [examples](examples) folder. For more information, please refer to the [documentation]().
+You can find other examples in the [examples](examples) folder. For more information, please refer to the [documentation](https://ml-cube.github.io/ml3-drift/).
 
 
 ## 📦 Installation
 
-`ml3-drift` is available on [PyPI]() and supports Python versions from 3.10 to 3.13, included.
+`ml3-drift` is available on [PyPI](https://pypi.org/project/ml3-drift/) and supports Python versions from 3.10 to 3.13, included.
 
 The integration with the different frameworks are managed through extra dependencies. The plain `ml3-drift` package comes without any dependency, which means that you need to specify the framework you want to use when installing the package. Otherwise, if you are just experimenting, you can install the package with all the available extras.
 
