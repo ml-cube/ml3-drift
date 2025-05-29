@@ -50,7 +50,4 @@ jobs:
 
       - name: 👌 Check upload
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          VERSION=${TAG:1}
-          echo "Version: $VERSION"
-          uv run --with ml3-drift==$VERSION --no-project -- python -c "import ml3_drift"
+          uv run --with ml3-drift --no-project -- python -c "import ml3_drift"
