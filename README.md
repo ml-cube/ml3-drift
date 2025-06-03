@@ -13,6 +13,7 @@
   <!--
   UNCOMMENT once we have proper documentation<a href="https://ml-cube.github.io/ml3-drift/"><img alt="Documentation" src="https://img.shields.io/website?url=https%3A%2F%2Fml-cube.github.io%2Fml3-drift%2F&up_message=online&down_message=offline
 "></a>
+!-->
 
 </p>
 
