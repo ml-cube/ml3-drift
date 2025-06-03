@@ -5,6 +5,16 @@
   </h3>
 </p>
 
+<p align="center">
+  <a href="https://github.com/ml-cube/ml3-drift/actions"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/ml-cube/ml3-drift/publish.yaml"></a>
+  <a href="https://github.com/ml-cube/ml3-drift/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/ml-cube/ml3-drift.svg?color=blue"></a>
+  <a href="https://pypi.org/project/ml3-drift/" target="_blank"><img src="https://img.shields.io/pypi/v/ml3-drift" alt="PyPi"></a>
+  <a href="https://pepy.tech/project/ml3-drift" target="_blank"><img src="https://pepy.tech/badge/ml3-drift" alt="PyPi Downloads"></a>
+  <!--
+  UNCOMMENT once we have proper documentation<a href="https://ml-cube.github.io/ml3-drift/"><img alt="Documentation" src="https://img.shields.io/website?url=https%3A%2F%2Fml-cube.github.io%2Fml3-drift%2F&up_message=online&down_message=offline
+"></a>
+
+</p>
 
 `ml3-drift` is an open source AI library that provides seamless integration of drift detection algorithms into existing Machine Learning and AI frameworks. The purpose is to simplify the implementation process and enable developers to easily incorporate drift detection into their pipelines.
 
