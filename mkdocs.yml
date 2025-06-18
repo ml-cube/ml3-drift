@@ -1,7 +1,11 @@
-site_name: ML cube Drift Documentation
+site_name: ml3-drift
 site_url: https://ml-cube.github.io/ml3-drift/
+site_description: Easy to embed drift detection for your ML workflows
+repo_url: https://github.com/ml-cube/ml3-drift
 docs_dir: md-docs
 site_dir: docs
+strict: true
+
 theme:
   name: material
   icon:
@@ -31,8 +35,8 @@ theme:
     # - header.autohide
     - navigation.expand
     - navigation.footer
-    - navigation.indexes
-    #- navigation.instant
+    # - navigation.indexes
+    # - navigation.instant
     # - navigation.prune
     - navigation.sections
     - navigation.expand
@@ -121,5 +125,49 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
-  - Home:
-      - index.md
+  # Getting started section:
+  # The entry point for users to learn about the project and how to install it.
+  # Should be enough to get an idea of what the project is about and how to use it.
+  - Get Started:
+    - Welcome to ml3-drift!: index.md
+    - Installation: get_started/install.md
+
+  # Concepts section:
+  # This section should explain the core concepts of the project.
+  # Experienced people might should not need this section.
+  - Concepts:
+    - Drift Detection: concepts/drift_detection.md
+    - Callbacks: concepts/callbacks.md
+
+  # Algorithms section:
+  # This section has an entry for each algorithm supported by the project.
+  # We should explain how it works and how to use it.
+  - Algorithms:
+      - KS Detector: algorithms/ks_detector.md
+      - Chi-Square Detector: algorithms/cs_detector.md
+
+  # Frameworks section:
+  # This section has an entry for each framework supported by the project.
+  # For each framework we provide the quantities that can be monitored
+  # and snippets of code on how to do it.
+  - Frameworks:
+      - Overview: frameworks/overview.md
+      - scikit-learn: frameworks/sklearn.md
+      - transformers (Hugging Face): frameworks/transformers.md
+
+
+  # Example section:
+  # Some examples of how to use the project. Should be close to
+  # real-world use cases, not strictly related to the algorithms or frameworks.
+  - Examples:
+      - Monitoring mixed data: examples/mixed_data.md
+      - Monitoring text data: examples/text_data.md
+
+  # API documentation section:
+  # This section should be automatically generated from the codebase
+  # according to the docstrings of each class.
+  - API Documentation: api_doc.md
+
+  # About:
+  # Few words about the project and ML cube.
+  - About: about.md
