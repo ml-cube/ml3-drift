@@ -22,14 +22,15 @@ class KSAlgorithm(MonitoringAlgorithm):
         callbacks: list[Callable[[DriftInfo], None]] | None = None,
     ) -> None:
         super().__init__(comparison_size, callbacks)
-        self.p_value = 0.005
+        self.p_value = p_value
 
         # post fit attributes
         self.X_ref_: np.ndarray = np.array([])
+        # post detect attributes
         self.comparison_data: np.ndarray = np.array([])
 
     def _is_valid(self, X: np.ndarray) -> tuple[bool, str]:
-        if X.shape[1] != 1:
+        if X.shape[1] == 1:
             return True, ""
         else:
             return False, f"X must be 1-dimensional vector. Got {X.shape}"
