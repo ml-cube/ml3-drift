@@ -32,8 +32,10 @@ lint:
 	uv run mypy --ignore-missing-imports --install-types --non-interactive --package ml3_drift
 
 # Run the tests with pytest
+# Default value for testWorkers, to run `just testWorkers=4`
+testWorkers := "auto"
 test:
-	uv run pytest --verbose --color=yes -n auto --exitfirst tests
+	uv run pytest --verbose --color=yes -n {{testWorkers}} --exitfirst tests
 
 # Run linters, formatters and tests
 validate: format lint test
