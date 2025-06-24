@@ -31,11 +31,12 @@ class DataDriftAnalyzer:
         self,
         continuous_monitoring_algorithm: Type[MonitoringAlgorithm],
         categorical_monitoring_algorithm: Type[MonitoringAlgorithm],
+        reference_size: int = 100,
         comparison_window_size: int = 100,
     ):
         self.continuous_monitoring_algorithm = continuous_monitoring_algorithm
         self.categorical_monitoring_algorithm = categorical_monitoring_algorithm
-        self.reference_size = comparison_window_size
+        self.reference_size = reference_size
         self.comparison_window_size = comparison_window_size
 
         self._continuous_ma_class = continuous_monitoring_algorithm
@@ -121,13 +122,13 @@ class DataDriftAnalyzer:
             )
 
         # Algorithm initialization
-        continuous_ma = self._continuous_ma_class(
-            self.reference_size, self.comparison_window_size
-        ).reset(X[: self.reference_size, continuous_columns_ids])
+        continuous_ma = self._continuous_ma_class(self.comparison_window_size).fit(
+            X[: self.reference_size, continuous_columns_ids]
+        )
 
-        categorical_ma = self._categorical_ma_class(
-            self.reference_size, self.comparison_window_size
-        ).reset(X[: self.reference_size, categorical_columns_ids])
+        categorical_ma = self._categorical_ma_class(self.comparison_window_size).fit(
+            X[: self.reference_size, categorical_columns_ids]
+        )
 
         # actual data scan
         concept_start = 0
@@ -135,24 +136,24 @@ class DataDriftAnalyzer:
         available_data = (X.shape[0] - 1) > row_id
 
         while available_data:
-            continuous_output = continuous_ma.update(X[row_id, :])
-            categorical_output = categorical_ma.update(X[row_id, :])
+            continuous_output = continuous_ma.detect(X[row_id, :])[0]
+            categorical_output = categorical_ma.detect(X[row_id, :])[0]
 
             remaining_data = X.shape[0] - 1 - row_id
 
-            if continuous_output.drift | categorical_output.drift:
-                concepts.append([concept_start, row_id])
+            if continuous_output.drift_detected | categorical_output.drift_detected:
+                concepts.append((concept_start, row_id))
                 concept_start = row_id + 1
                 # reset monitoring algorithm with past comparison_window_size data and newest one
 
                 if remaining_data >= self.reference_size:
-                    continuous_ma.reset(
+                    continuous_ma.fit(
                         continuous_data[
                             row_id : row_id + self.reference_size,
                             :,
                         ]
                     )
-                    categorical_ma.reset(
+                    categorical_ma.fit(
                         categorical_data[
                             row_id : row_id + self.reference_size,
                             :,
@@ -160,7 +161,7 @@ class DataDriftAnalyzer:
                     )
                     row_id = row_id + self.reference_size
                 else:
-                    concepts.append([row_id + 1, row_id + 1 + remaining_data])
+                    concepts.append((row_id + 1, row_id + 1 + remaining_data))
                     available_data = False
             else:
                 row_id += 1
