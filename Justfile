@@ -1,7 +1,7 @@
 # https://github.com/casey/just
 
 # Prevent showing the recipe name when running
-set quiet
+# set quiet
 
 # Default recipe, it's run when just is invoked without a recipe
 default:

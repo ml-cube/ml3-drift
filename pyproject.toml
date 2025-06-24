@@ -21,6 +21,10 @@ sklearn = ["scikit-learn>=1.6.1"]
 
 huggingface = ["scipy>=1.15.2", "transformers[torch]>=4.52.3"]
 
+polars = ["polars>=1.31.0"]
+
+pandas = [ "pandas>=2.2.3" ]
+
 
 # -------------------------------------------------
 
@@ -47,6 +51,7 @@ dev = [
     "mkdocs-macros-plugin",
     "openpyxl",
 ]
+
 
 # -------------------------------------------------
 
