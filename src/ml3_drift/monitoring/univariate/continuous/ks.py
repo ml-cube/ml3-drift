@@ -42,8 +42,16 @@ class KSAlgorithm(MonitoringAlgorithm):
     def _compute_statistic(self) -> MonitoringOutput:
         """Compute the statistic and create the monitoring output object"""
         _, p_value = stats.ks_2samp(self.X_ref_, self.comparison_data)
-        drift_detected = p_value < self.p_value  # type: ignore
-        return MonitoringOutput(drift_detected=drift_detected, drift_info=None)
+        p_value = float(p_value)  # type: ignore
+
+        drift_detected = p_value < self.p_value
+
+        return MonitoringOutput(
+            drift_detected=drift_detected,
+            drift_info=DriftInfo(
+                test_statistic=p_value, statistic_threshold=self.p_value
+            ),
+        )
 
     def _detect(self, X: np.ndarray) -> list[MonitoringOutput]:
         """Compute KS statistic between reference and every sample.
