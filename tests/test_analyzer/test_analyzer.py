@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from ml3_drift.analysis.analyzer import DataDriftAnalyzer
+from ml3_drift.analysis.analyzer.stream import StreamDataDriftAnalyzer
 from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
 from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
 from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
@@ -107,7 +107,7 @@ def test_analyzer_numpy(input_type, y_type, n_drifts):
             cat_base_generator, cat_drift_generator, n_drifts, n_samples, 1
         )
 
-    analyzer = DataDriftAnalyzer(
+    analyzer = StreamDataDriftAnalyzer(
         continuous_ma_builder=lambda comparison_size: BonferroniCorrectionAlgorithm(
             comparison_size, lambda p_value: KSAlgorithm(comparison_size, p_value)
         ),
