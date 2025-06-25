@@ -7,6 +7,22 @@ from ml3_drift.monitoring.base import MonitoringAlgorithm
 
 
 class StreamDataDriftAnalyzer(DataDriftAnalyzer):
+    """Stream data drift analyzer runs the monitoring algorithm over the entire
+    dataset following a sliding window approach where `reference_size` are compared to
+    `comparison_window_size` data.
+
+    When a drift is detected, a new data split is created.
+
+    Parameters
+    ----------
+    continuous_ma_builder: closure function that accepts int parameter as `comparison_window_size`
+        and returns an instance of a MonitoringAlgorithm
+    categorical_ma_builder: closure function that accepts int parameter as `comparison_window_size`
+        and returns an instance of a MonitoringAlgorithm
+    reference_size: number of samples used to initialize monitoring algorithm
+    comparison_window_size: number of samples used in the sliding window
+    """
+
     def __init__(
         self,
         continuous_ma_builder: Callable[[int], MonitoringAlgorithm],
@@ -110,4 +126,4 @@ class StreamDataDriftAnalyzer(DataDriftAnalyzer):
         else:
             concepts.append((concepts[-1][1], X.shape[0]))
 
-        return Report(concepts)
+        return Report(concepts, {})

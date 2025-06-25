@@ -26,6 +26,13 @@ except ModuleNotFoundError:
 class DataDriftAnalyzer(ABC):
     """
     Analyze a dataset identifying the sequence of distributions due to data drifts.
+
+    Parameters
+    ----------
+    continuous_ma_builder: closure function that accepts int parameter as `comparison_window_size`
+        and returns an instance of a MonitoringAlgorithm
+    categorical_ma_builder: closure function that accepts int parameter as `comparison_window_size`
+        and returns an instance of a MonitoringAlgorithm
     """
 
     def __init__(
@@ -97,11 +104,27 @@ class DataDriftAnalyzer(ABC):
     def analyze(
         self,
         X: Union[np.ndarray, "pd.DataFrame", "pl.DataFrame"],
-        y: Union[None, np.ndarray, "pd.DataFrame", "pl.DataFrame"] = None,
-        continuous_columns: list[str] | list[int] | None = None,
-        categorical_columns: list[str] | list[int] | None = None,
-        y_categorical: bool = False,
+        y: Union[None, np.ndarray, "pd.DataFrame", "pl.DataFrame"],
+        continuous_columns: list[str] | list[int] | None,
+        categorical_columns: list[str] | list[int] | None,
+        y_categorical: bool,
     ) -> Report:
+        """Analyze the data to split them into different distribution according to drift detectors.
+
+        If target is provided then concept drift is used as split criterion, otherwise, it uses input drift.
+
+        Parameters
+        ----------
+        X: input data. Can be numpy array, pandas dataframe or polars dataframe
+        y: target data. It is optional and can be numpy array, pandas dataframe or polars dataframe
+        continuous_columns: if not None it is the indices or names of the columns that are continuous
+        categorical_columns: if not None it is the indices or names of the columns that are categorical
+        y_categorical: if True, then the target is categorical, otherwise it is considered as continuous
+
+        Output
+        ------
+        Report object containing information about identified data groups
+        """
         # Shape check
         if y is not None and X.shape[0] != y.shape[0]:
             raise ValueError(

@@ -8,6 +8,21 @@ from ml3_drift.monitoring.base import MonitoringAlgorithm
 
 
 class BatchDataDriftAnalyzer(DataDriftAnalyzer):
+    """Batch data drift analyzer splits data into mini batches of size `batch_size`
+    and through drift detection merges them into macro batch representing data that
+    belong to the same distribution.
+
+    Data can belong to the same distribution even if they are not contiguous.
+
+    Parameters
+    ----------
+    continuous_ma_builder: closure function that accepts int parameter as `comparison_window_size`
+        and returns an instance of a MonitoringAlgorithm
+    categorical_ma_builder: closure function that accepts int parameter as `comparison_window_size`
+        and returns an instance of a MonitoringAlgorithm
+    batch_size: initial batch dimensions and also used as comparison_window_size
+    """
+
     def __init__(
         self,
         continuous_ma_builder: Callable[[int], MonitoringAlgorithm],
