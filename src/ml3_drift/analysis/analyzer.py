@@ -1,5 +1,5 @@
 import numpy as np
-from typing import TYPE_CHECKING, Type, TypeIs, Union
+from typing import TYPE_CHECKING, Callable, TypeIs, Union
 
 from ml3_drift.analysis.report import Report
 from ml3_drift.monitoring.base import MonitoringAlgorithm
@@ -29,18 +29,16 @@ class DataDriftAnalyzer:
 
     def __init__(
         self,
-        continuous_monitoring_algorithm: Type[MonitoringAlgorithm],
-        categorical_monitoring_algorithm: Type[MonitoringAlgorithm],
+        continuous_ma_builder: Callable[[int], MonitoringAlgorithm],
+        categorical_ma_builder: Callable[[int], MonitoringAlgorithm],
         reference_size: int = 100,
         comparison_window_size: int = 100,
     ):
-        self.continuous_monitoring_algorithm = continuous_monitoring_algorithm
-        self.categorical_monitoring_algorithm = categorical_monitoring_algorithm
         self.reference_size = reference_size
         self.comparison_window_size = comparison_window_size
 
-        self._continuous_ma_class = continuous_monitoring_algorithm
-        self._categorical_ma_class = categorical_monitoring_algorithm
+        self.continuous_ma_builder = continuous_ma_builder
+        self.categorical_ma_builder = categorical_ma_builder
 
     def _is_list_str(self, columns: list[str] | list[int]) -> TypeIs[list[str]]:
         """Verify if the input variable is a list of str in any element"""
@@ -122,11 +120,11 @@ class DataDriftAnalyzer:
             )
 
         # Algorithm initialization
-        continuous_ma = self._continuous_ma_class(self.comparison_window_size).fit(
+        continuous_ma = self.continuous_ma_builder(self.comparison_window_size).fit(
             continuous_data[: self.reference_size, :]
         )
 
-        categorical_ma = self._categorical_ma_class(self.comparison_window_size).fit(
+        categorical_ma = self.categorical_ma_builder(self.comparison_window_size).fit(
             categorical_data[: self.reference_size, :]
         )
 

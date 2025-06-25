@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
-
 from ml3_drift.analysis.analyzer import DataDriftAnalyzer
-from ml3_drift.monitoring.multivariate.chi_square import BonferroniChiSquareAlgorithm
-from ml3_drift.monitoring.multivariate.ks import BonferroniKSAlgorithm
+from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
+from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
 
 
 @pytest.mark.parametrize(
@@ -38,7 +38,7 @@ from ml3_drift.monitoring.multivariate.ks import BonferroniKSAlgorithm
 def test_analyzer_numpy(input_type, y_type, n_drifts):
     rng = np.random.default_rng(2)
     n_samples = 300
-    n_cont = 1
+    n_cont = 2
     n_cat = 2
 
     # Helper to generate data with drifts
@@ -108,8 +108,13 @@ def test_analyzer_numpy(input_type, y_type, n_drifts):
         )
 
     analyzer = DataDriftAnalyzer(
-        continuous_monitoring_algorithm=BonferroniKSAlgorithm,
-        categorical_monitoring_algorithm=BonferroniChiSquareAlgorithm,
+        continuous_ma_builder=lambda comparison_size: BonferroniCorrectionAlgorithm(
+            comparison_size, lambda p_value: KSAlgorithm(comparison_size, p_value)
+        ),
+        categorical_ma_builder=lambda comparison_size: BonferroniCorrectionAlgorithm(
+            comparison_size,
+            lambda p_value: ChiSquareAlgorithm(comparison_size, p_value),
+        ),
         reference_size=50,
         comparison_window_size=50,
     )

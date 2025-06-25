@@ -2,6 +2,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ml3_drift.enums.monitoring import DataDimension, DataType, MonitoringType
+
+
+@dataclass
+class MonitoringAlgorithmSpecs:
+    """Data class containing the specification of monitoring algorithms
+    that helps to define a taxonomy over them.
+    """
+
+    data_dimension: DataDimension
+    data_type: DataType
+    monitoring_type: MonitoringType
+
 
 @dataclass
 class MonitoringOutput:

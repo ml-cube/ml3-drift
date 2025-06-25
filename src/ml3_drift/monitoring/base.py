@@ -3,7 +3,11 @@ from typing import Callable, Self
 import numpy as np
 
 from ml3_drift.exceptions.monitoring import NotFittedError
-from ml3_drift.models.monitoring import DriftInfo, MonitoringOutput
+from ml3_drift.models.monitoring import (
+    DriftInfo,
+    MonitoringAlgorithmSpecs,
+    MonitoringOutput,
+)
 
 
 class MonitoringAlgorithm(ABC):
@@ -19,6 +23,12 @@ class MonitoringAlgorithm(ABC):
     The class can have a list of callbacks called as soon as a drift is detected,
     a callback is a function that receives as input the drift info
     """
+
+    _specs: MonitoringAlgorithmSpecs
+
+    @classmethod
+    def specs(cls) -> MonitoringAlgorithmSpecs:
+        return cls._specs
 
     def __init__(
         self,
@@ -72,8 +82,7 @@ class MonitoringAlgorithm(ABC):
 
         self._reset_internal_parameters()
 
-        column_data = len(X.shape) == 1
-        if column_data:
+        if len(X.shape) == 1:
             X = X.reshape(-1, 1)
 
         self._validate(X)
@@ -82,11 +91,7 @@ class MonitoringAlgorithm(ABC):
 
         self.is_fitted = True
 
-        if column_data:
-            self.reference_size = X.shape
-            self.data_shape = 1
-        else:
-            self.reference_size, self.data_shape = X.shape
+        self.reference_size, self.data_shape = X.shape
 
         return self
 

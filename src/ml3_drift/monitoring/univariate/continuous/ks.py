@@ -2,11 +2,16 @@ import numpy as np
 from typing import Callable
 
 from scipy import stats
-from ml3_drift.models.monitoring import DriftInfo, MonitoringOutput
-from ml3_drift.monitoring.base import MonitoringAlgorithm
+from ml3_drift.enums.monitoring import DataDimension, DataType, MonitoringType
+from ml3_drift.models.monitoring import (
+    DriftInfo,
+    MonitoringAlgorithmSpecs,
+    MonitoringOutput,
+)
+from ml3_drift.monitoring.univariate.base import UnivariateMonitoringAlgorithm
 
 
-class KSAlgorithm(MonitoringAlgorithm):
+class KSAlgorithm(UnivariateMonitoringAlgorithm):
     """Monitoring algorithm based on the Kolmogorov-Smirnov statistic test.
 
     Parameters
@@ -14,6 +19,12 @@ class KSAlgorithm(MonitoringAlgorithm):
     p_value: float
         p-value threshold for detecting drift. Default is 0.005.
     """
+
+    _specs = MonitoringAlgorithmSpecs(
+        data_dimension=DataDimension.UNIVARIATE,
+        data_type=DataType.CONTINUOUS,
+        monitoring_type=MonitoringType.OFFLINE,
+    )
 
     def __init__(
         self,
@@ -26,12 +37,6 @@ class KSAlgorithm(MonitoringAlgorithm):
 
         # post fit attributes
         self.X_ref_: np.ndarray = np.array([])
-
-    def _is_valid(self, X: np.ndarray) -> tuple[bool, str]:
-        if X.shape[1] == 1:
-            return True, ""
-        else:
-            return False, f"X must be 1-dimensional vector. Got {X.shape}"
 
     def _reset_internal_parameters(self):
         self.X_ref_ = np.array([])
