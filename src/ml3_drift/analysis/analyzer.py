@@ -123,11 +123,11 @@ class DataDriftAnalyzer:
 
         # Algorithm initialization
         continuous_ma = self._continuous_ma_class(self.comparison_window_size).fit(
-            X[: self.reference_size, continuous_columns_ids]
+            continuous_data[: self.reference_size, :]
         )
 
         categorical_ma = self._categorical_ma_class(self.comparison_window_size).fit(
-            X[: self.reference_size, categorical_columns_ids]
+            categorical_data[: self.reference_size, :]
         )
 
         # actual data scan
@@ -136,8 +136,12 @@ class DataDriftAnalyzer:
         available_data = (X.shape[0] - 1) > row_id
 
         while available_data:
-            continuous_output = continuous_ma.detect(X[row_id, :])[0]
-            categorical_output = categorical_ma.detect(X[row_id, :])[0]
+            continuous_output = continuous_ma.detect(
+                continuous_data[row_id : row_id + 1, :]
+            )[0]
+            categorical_output = categorical_ma.detect(
+                categorical_data[row_id : row_id + 1, :]
+            )[0]
 
             remaining_data = X.shape[0] - 1 - row_id
 
@@ -161,11 +165,17 @@ class DataDriftAnalyzer:
                     )
                     row_id = row_id + self.reference_size
                 else:
-                    concepts.append((row_id + 1, row_id + 1 + remaining_data))
+                    # concepts.append((row_id + 1, row_id + 1 + remaining_data))
                     available_data = False
             else:
                 row_id += 1
                 available_data = remaining_data > 0
+
+        # If no drift is detected we have only one concept
+        if len(concepts) == 0:
+            concepts = [(concept_start, X.shape[0])]
+        else:
+            concepts.append((concepts[-1][1], X.shape[0]))
 
         return Report(concepts)
 
@@ -184,7 +194,10 @@ class DataDriftAnalyzer:
             )
 
         # Continuous and categorical columns to canonical form
-        continuous_columns_ids = self._to_index(X, continuous_columns)
+        if continuous_columns is not None:
+            continuous_columns_ids = self._to_index(X, continuous_columns)
+        else:
+            continuous_columns_ids = []
 
         if categorical_columns is not None:
             categorical_columns_ids = self._to_index(X, categorical_columns)

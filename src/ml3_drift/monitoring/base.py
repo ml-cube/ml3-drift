@@ -34,6 +34,8 @@ class MonitoringAlgorithm(ABC):
         # post fit attributes
         self.reference_size = 0
         self.data_shape = 0
+        # post detect attributes
+        self.comparison_data: np.ndarray = np.array([])
 
     def _is_valid(self, X: np.ndarray) -> tuple[bool, str]:
         """Additional validation performed by subclasses.
@@ -51,6 +53,10 @@ class MonitoringAlgorithm(ABC):
             raise ValueError(message)
 
     @abstractmethod
+    def _reset_internal_parameters(self):
+        pass
+
+    @abstractmethod
     def _fit(self, X: np.ndarray):
         pass
 
@@ -59,6 +65,13 @@ class MonitoringAlgorithm(ABC):
 
         At the end of the fit procedure, it stores the number of reference samples and
         the dimension of input data."""
+
+        self.reference_size = 0
+        self.data_shape = 0
+        self.comparison_data: np.ndarray = np.array([])
+
+        self._reset_internal_parameters()
+
         column_data = len(X.shape) == 1
         if column_data:
             X = X.reshape(-1, 1)
@@ -78,12 +91,19 @@ class MonitoringAlgorithm(ABC):
         return self
 
     @abstractmethod
-    def _detect(self, X: np.ndarray) -> list[MonitoringOutput]:
+    def _detect(self) -> MonitoringOutput:
         pass
 
     def detect(self, X: np.ndarray) -> list[MonitoringOutput]:
         """Analyzes the provided data computing statistics and defining if they belong
         to the reference distribution or to another determining a drift.
+
+        Test statistic is computed only when there is enough data for comparison.
+        Specifically the number of comparison data is defined by the attribute `comparison_size`.
+
+        Therefore, the first `comparison_size` - 1 are not monitored and they produce a "no drift" output.
+        After that, any new sample is added to `comparison_data` by removing the oldest one, the KS statistic
+        is computed and according to the p-value, the drift is detected.
 
         If present, callbacks are called for each drifted sample.
         """
@@ -100,7 +120,40 @@ class MonitoringAlgorithm(ABC):
 
         self._validate(X)
 
-        detection_output = self._detect(X)
+        # Detection loop
+
+        detection_output = []
+
+        # initialize comparison data with all the available data
+        samples_to_fill_comparison_data = min(
+            X.shape[0], self.comparison_size - self.comparison_data.shape[0]
+        )
+
+        if samples_to_fill_comparison_data > 0:
+            initial_comparison_data_size = self.comparison_data.shape[0]
+            data_to_add = X[:samples_to_fill_comparison_data]
+            if initial_comparison_data_size == 0:
+                self.comparison_data = data_to_add
+            else:
+                self.comparison_data = np.vstack([self.comparison_data, data_to_add])
+
+            detection_output = [
+                MonitoringOutput(drift_detected=False, drift_info=None)
+                for _ in range(data_to_add.shape[0] - 1)
+            ]
+            if self.comparison_data.shape[0] == self.comparison_size:
+                detection_output.append(self._detect())
+            else:
+                detection_output.append(
+                    MonitoringOutput(drift_detected=False, drift_info=None)
+                )
+
+        for i in range(
+            samples_to_fill_comparison_data,
+            X.shape[0] - samples_to_fill_comparison_data,
+        ):
+            self.comparison_data = np.vstack([self.comparison_data[1:], X[i : i + 1]])
+            detection_output.append(self._detect())
 
         if self.has_callbacks:
             for sample_output in detection_output:
