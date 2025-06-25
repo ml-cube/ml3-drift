@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Callable, Self
 import numpy as np
 
+from ml3_drift.enums.monitoring import MonitoringType
 from ml3_drift.exceptions.monitoring import NotFittedError
 from ml3_drift.models.monitoring import (
     DriftInfo,
@@ -99,32 +100,15 @@ class MonitoringAlgorithm(ABC):
     def _detect(self) -> MonitoringOutput:
         pass
 
-    def detect(self, X: np.ndarray) -> list[MonitoringOutput]:
-        """Analyzes the provided data computing statistics and defining if they belong
-        to the reference distribution or to another determining a drift.
+    def _online_detect(self, X: np.ndarray) -> list[MonitoringOutput]:
+        """In online detection, a sliding window is used over the samples to detect drift at each step.
 
         Test statistic is computed only when there is enough data for comparison.
         Specifically the number of comparison data is defined by the attribute `comparison_size`.
 
         Therefore, the first `comparison_size` - 1 are not monitored and they produce a "no drift" output.
         After that, any new sample is added to `comparison_data` by removing the oldest one, the KS statistic
-        is computed and according to the p-value, the drift is detected.
-
-        If present, callbacks are called for each drifted sample.
-        """
-        if not self.is_fitted:
-            raise NotFittedError("Algorithm must be fitted first.")
-
-        if self.data_shape == 1 and len(X.shape) == 1:
-            X = X.reshape(-1, 1)
-
-        elif X.shape[1] != self.data_shape:
-            raise ValueError(
-                f"Data must have the same shape as reference. Expected {self.data_shape}, got {X.shape[1]}"
-            )
-
-        self._validate(X)
-
+        is computed and according to the p-value, the drift is detected."""
         # Detection loop
 
         detection_output = []
@@ -159,6 +143,41 @@ class MonitoringAlgorithm(ABC):
         ):
             self.comparison_data = np.vstack([self.comparison_data[1:], X[i : i + 1]])
             detection_output.append(self._detect())
+
+        return detection_output
+
+    def _offline_detect(self, X: np.ndarray) -> list[MonitoringOutput]:
+        """In offline detection we compare reference data, coming from fit(X), with the
+        provided batch of data.
+
+        Therefore, we substitute completely the comparison_data with the provided X
+        """
+        self.comparison_data = X
+        return [self._detect()]
+
+    def detect(self, X: np.ndarray) -> list[MonitoringOutput]:
+        """Analyzes the provided data computing statistics and defining if they belong
+        to the reference distribution or to another determining a drift.
+
+        If present, callbacks are called for each drifted sample.
+        """
+        if not self.is_fitted:
+            raise NotFittedError("Algorithm must be fitted first.")
+
+        if self.data_shape == 1 and len(X.shape) == 1:
+            X = X.reshape(-1, 1)
+
+        elif X.shape[1] != self.data_shape:
+            raise ValueError(
+                f"Data must have the same shape as reference. Expected {self.data_shape}, got {X.shape[1]}"
+            )
+
+        self._validate(X)
+
+        if self.specs().monitoring_type == MonitoringType.ONLINE:
+            detection_output = self._online_detect(X)
+        else:
+            detection_output = self._offline_detect(X)
 
         if self.has_callbacks:
             for sample_output in detection_output:
