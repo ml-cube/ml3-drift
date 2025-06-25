@@ -70,7 +70,7 @@ class DataDriftAnalyzer(ABC):
                 return [i for (i, c) in enumerate(X.columns) if c in columns]
             else:
                 raise ValueError(
-                    "Type not valid, expecting polars DataFrame or pandas DataFrame when columns has string values. Got {type(X)}"
+                    f"Type not valid, expecting polars DataFrame or pandas DataFrame when columns has string values. Got {type(X)}"
                 )
         return columns
 
