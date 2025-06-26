@@ -43,3 +43,7 @@ def image_data():
     """
 
     return Image.fromarray(np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8))
+
+
+# ------------------------------------
+# Test factories

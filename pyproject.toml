@@ -72,3 +72,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.version]
 path = "src/ml3_drift/__init__.py"
+
+
+# Set pytest folder
+[tool.pytest.ini_options]
+testpaths = ["tests"]
