@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, TypeVar
 
 from numpy import ndarray
 from ml3_drift.enums.monitoring import DataDimension, DataType, MonitoringType
@@ -10,10 +10,10 @@ from ml3_drift.models.monitoring import (
 from ml3_drift.monitoring.base import MonitoringAlgorithm
 from ml3_drift.monitoring.univariate.base import UnivariateMonitoringAlgorithm
 
+T = TypeVar("T", bound=UnivariateMonitoringAlgorithm)
 
-class BonferroniCorrectionAlgorithm[T: UnivariateMonitoringAlgorithm](
-    MonitoringAlgorithm
-):
+
+class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
     """Extension of p-value based univariate algorithms with Bonferroni correction
     to handle multivariate data"""
 

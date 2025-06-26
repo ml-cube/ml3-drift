@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from typing import TYPE_CHECKING, Callable, TypeIs, Union
+from typing import TYPE_CHECKING, Callable, Union
+from typing_extensions import TypeIs
 
 from ml3_drift.analysis.report import Report
 from ml3_drift.monitoring.base import MonitoringAlgorithm

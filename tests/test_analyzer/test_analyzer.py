@@ -4,52 +4,70 @@ from ml3_drift.analysis.analyzer.batch import BatchDataDriftAnalyzer
 from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
 from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
 from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
+from tests.conftest import is_module_available
+
+
+input_definition_test_params: list[tuple[str, str | None, int, str]] = [
+    # Only input continuous
+    ("cont", None, 0, "numpy"),
+    ("cont", None, 1, "numpy"),
+    ("cont", None, 2, "numpy"),
+    ("cont", None, 0, "polars"),
+    ("cont", None, 0, "pandas"),
+    # Only input categorical
+    ("cat", None, 0, "numpy"),
+    ("cat", None, 0, "polars"),
+    ("cat", None, 0, "pandas"),
+    ("cat", None, 1, "numpy"),
+    ("cat", None, 2, "numpy"),
+    # Input mixed
+    ("mix", None, 0, "numpy"),
+    ("mix", None, 1, "numpy"),
+    ("mix", None, 2, "numpy"),
+    # Input continuous + target continuous
+    ("cont", "cont", 1, "numpy"),
+    ("cont", "cont", 1, "polars"),
+    ("cont", "cont", 1, "pandas"),
+    # Input categorical + target continuous
+    ("cat", "cont", 1, "numpy"),
+    ("cat", "cont", 1, "pandas"),
+    ("cat", "cont", 1, "polars"),
+    # Input mixed + target continuous
+    ("mix", "cont", 1, "numpy"),
+    ("mix", "cont", 1, "polars"),
+    ("mix", "cont", 1, "pandas"),
+    # Input continuous + target categorical
+    ("cont", "cat", 1, "numpy"),
+    ("cont", "cat", 1, "polars"),
+    ("cont", "cat", 1, "pandas"),
+    # Input categorical + target categorical
+    ("cat", "cat", 1, "numpy"),
+    ("cat", "cat", 1, "polars"),
+    ("cat", "cat", 1, "pandas"),
+    # Input mixed + target categorical
+    ("mix", "cat", 1, "numpy"),
+    ("mix", "cat", 1, "polars"),
+    ("mix", "cat", 1, "pandas"),
+]
+
+if not is_module_available("polars"):
+    input_definition_test_params = [
+        (input_type, y_type, n_drifts, data_format)
+        for input_type, y_type, n_drifts, data_format in input_definition_test_params
+        if data_format != "polars"
+    ]
+
+if not is_module_available("pandas"):
+    input_definition_test_params = [
+        (input_type, y_type, n_drifts, data_format)
+        for input_type, y_type, n_drifts, data_format in input_definition_test_params
+        if data_format != "pandas"
+    ]
 
 
 @pytest.mark.parametrize(
     "input_type, y_type, n_drifts, data_format",
-    [
-        # Only input continuous
-        ("cont", None, 0, "numpy"),
-        ("cont", None, 1, "numpy"),
-        ("cont", None, 2, "numpy"),
-        ("cont", None, 0, "polars"),
-        ("cont", None, 0, "pandas"),
-        # Only input categorical
-        ("cat", None, 0, "numpy"),
-        ("cat", None, 0, "polars"),
-        ("cat", None, 0, "pandas"),
-        ("cat", None, 1, "numpy"),
-        ("cat", None, 2, "numpy"),
-        # Input mixed
-        ("mix", None, 0, "numpy"),
-        ("mix", None, 1, "numpy"),
-        ("mix", None, 2, "numpy"),
-        # Input continuous + target continuous
-        ("cont", "cont", 1, "numpy"),
-        ("cont", "cont", 1, "polars"),
-        ("cont", "cont", 1, "pandas"),
-        # Input categorical + target continuous
-        ("cat", "cont", 1, "numpy"),
-        ("cat", "cont", 1, "pandas"),
-        ("cat", "cont", 1, "polars"),
-        # Input mixed + target continuous
-        ("mix", "cont", 1, "numpy"),
-        ("mix", "cont", 1, "polars"),
-        ("mix", "cont", 1, "pandas"),
-        # Input continuous + target categorical
-        ("cont", "cat", 1, "numpy"),
-        ("cont", "cat", 1, "polars"),
-        ("cont", "cat", 1, "pandas"),
-        # Input categorical + target categorical
-        ("cat", "cat", 1, "numpy"),
-        ("cat", "cat", 1, "polars"),
-        ("cat", "cat", 1, "pandas"),
-        # Input mixed + target categorical
-        ("mix", "cat", 1, "numpy"),
-        ("mix", "cat", 1, "polars"),
-        ("mix", "cat", 1, "pandas"),
-    ],
+    input_definition_test_params,
 )
 def test_batch_analyzer(input_type, y_type, n_drifts, data_format):
     rng = np.random.default_rng(2)

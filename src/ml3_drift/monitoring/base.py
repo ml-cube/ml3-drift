@@ -79,7 +79,7 @@ class MonitoringAlgorithm(ABC):
 
         self.reference_size = 0
         self.data_shape = 0
-        self.comparison_data: np.ndarray = np.array([])
+        self.comparison_data = np.array([])
 
         self._reset_internal_parameters()
 

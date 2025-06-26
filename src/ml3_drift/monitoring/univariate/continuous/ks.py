@@ -47,14 +47,15 @@ class KSAlgorithm(UnivariateMonitoringAlgorithm):
 
     def _detect(self) -> MonitoringOutput:
         """Compute the statistic and create the monitoring output object"""
-        _, p_value = stats.ks_2samp(self.X_ref_, self.comparison_data)
-        p_value = float(p_value)  # type: ignore
+        _, test_p_val = stats.ks_2samp(self.X_ref_, self.comparison_data)
 
-        drift_detected = p_value < self.p_value
+        test_p_val_float = test_p_val.item()
+
+        drift_detected = test_p_val_float < self.p_value
 
         return MonitoringOutput(
             drift_detected=drift_detected,
             drift_info=DriftInfo(
-                test_statistic=p_value, statistic_threshold=self.p_value
+                test_statistic=test_p_val_float, statistic_threshold=self.p_value
             ),
         )
