@@ -34,7 +34,7 @@ class MonitoringAlgorithm(ABC):
     comparison_size: int | None, optional
         Only relevant in online monitoring algorithms.
         It defines the size of the sliding window used for comparison.
-    callbacks: list[Callable[[DriftInfo], None]], optional
+    callbacks: list[Callable[[DriftInfo | None], None]], optional
         A list of callback functions that are called when a drift is detected.
         Each callback receives a DriftInfo object containing information about the detected drift.
         If not provided, no callbacks are used.
@@ -50,7 +50,7 @@ class MonitoringAlgorithm(ABC):
     def __init__(
         self,
         comparison_size: int | None = None,
-        callbacks: list[Callable[[DriftInfo], None]] | None = None,
+        callbacks: list[Callable[[DriftInfo | None], None]] | None = None,
     ) -> None:
         self.comparison_size = comparison_size
 
@@ -220,10 +220,7 @@ class MonitoringAlgorithm(ABC):
 
         if self.has_callbacks:
             for sample_output in detection_output:
-                if (
-                    sample_output.drift_detected
-                    and sample_output.drift_info is not None
-                ):
+                if sample_output.drift_detected:
                     for callback in self.callbacks:
                         callback(sample_output.drift_info)
 

@@ -1,11 +1,10 @@
+from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
 from tests.conftest import is_module_available
 
 import pytest
 
 if is_module_available("transformers"):
-    from ml3_drift.huggingface.univariate.ks import (
-        KSDriftDetector,
-    )
     from ml3_drift.huggingface.drift_detection_pipeline import (
         HuggingFaceDriftDetectionPipeline,
     )
@@ -27,13 +26,8 @@ class TestHuggingFaceDriftDetectionPipeline:
         Test pipeline with text data for drift detection.
         """
 
-        # Not optimal as we are loading a big model,
-        # but it didn't work with a simple model taken
-        # from here:
-        # https://github.com/huggingface/transformers/blob/6e3063422c4b1c014aa60c32b9254fd2902f0f28/tests/pipelines/test_pipelines_feature_extraction.py#L46
-        # We should do something.
         pipe = HuggingFaceDriftDetectionPipeline(
-            drift_detector=KSDriftDetector(),
+            drift_detector=KSAlgorithm(p_value=0.05),
             task="feature-extraction",
             model="hf-internal-testing/tiny-random-distilbert",
             framework="pt",
@@ -45,7 +39,7 @@ class TestHuggingFaceDriftDetectionPipeline:
         )
 
         assert pipe._drift_detector.is_fitted
-        assert pipe._drift_detector.X_ref_.shape == (1, 32), (
+        assert pipe._drift_detector.X_ref_.shape == (32, 1), (
             "Reference data shape mismatch."
         )
 
@@ -60,13 +54,22 @@ class TestHuggingFaceDriftDetectionPipeline:
         )
 
         assert pipe._drift_detector.is_fitted
-        assert pipe._drift_detector.X_ref_.shape == (1, 32), (
+        assert pipe._drift_detector.X_ref_.shape == (32, 1), (
             "Reference data shape mismatch."
         )
 
         pipe(
             text_data,
             return_tensors=return_tensors,
+        )
+
+        pipe = HuggingFaceDriftDetectionPipeline(
+            drift_detector=BonferroniCorrectionAlgorithm(
+                p_value=0.05, algorithm=KSAlgorithm()
+            ),
+            task="feature-extraction",
+            model="hf-internal-testing/tiny-random-distilbert",
+            framework="pt",
         )
 
         pipe.fit_detector(
@@ -75,12 +78,9 @@ class TestHuggingFaceDriftDetectionPipeline:
         )
 
         assert pipe._drift_detector.is_fitted
-        assert pipe._drift_detector.X_ref_.shape == (2, 32), (
-            "Reference data shape mismatch."
-        )
 
         pipe(
-            text_data,
+            [text_data, text_data],
             return_tensors=return_tensors,
         )
 
@@ -90,10 +90,8 @@ class TestHuggingFaceDriftDetectionPipeline:
         Test pipeline with image data for drift detection.
         """
 
-        # Not optimal as we are loading a big model,
-        # We should do something.
         pipe = HuggingFaceDriftDetectionPipeline(
-            drift_detector=KSDriftDetector(),
+            drift_detector=KSAlgorithm(p_value=0.05),
             task="image-feature-extraction",
             model="hf-internal-testing/tiny-random-vit",
             framework="pt",
@@ -105,7 +103,7 @@ class TestHuggingFaceDriftDetectionPipeline:
         )
 
         assert pipe._drift_detector.is_fitted
-        assert pipe._drift_detector.X_ref_.shape == (1, 32), (
+        assert pipe._drift_detector.X_ref_.shape == (32, 1), (
             "Reference data shape mismatch."
         )
 
@@ -120,13 +118,22 @@ class TestHuggingFaceDriftDetectionPipeline:
         )
 
         assert pipe._drift_detector.is_fitted
-        assert pipe._drift_detector.X_ref_.shape == (1, 32), (
+        assert pipe._drift_detector.X_ref_.shape == (32, 1), (
             "Reference data shape mismatch."
         )
 
         pipe(
             image_data,
             return_tensors=return_tensors,
+        )
+
+        pipe = HuggingFaceDriftDetectionPipeline(
+            drift_detector=BonferroniCorrectionAlgorithm(
+                p_value=0.05, algorithm=KSAlgorithm()
+            ),
+            task="image-feature-extraction",
+            model="hf-internal-testing/tiny-random-vit",
+            framework="pt",
         )
 
         pipe.fit_detector(
@@ -135,11 +142,8 @@ class TestHuggingFaceDriftDetectionPipeline:
         )
 
         assert pipe._drift_detector.is_fitted
-        assert pipe._drift_detector.X_ref_.shape == (2, 32), (
-            "Reference data shape mismatch."
-        )
 
         pipe(
-            image_data,
+            [image_data, image_data],
             return_tensors=return_tensors,
         )

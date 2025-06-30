@@ -3,7 +3,8 @@ import logging
 from ml3_drift.huggingface.drift_detection_pipeline import (
     HuggingFaceDriftDetectionPipeline,
 )
-from ml3_drift.huggingface.univariate.ks import KSDriftDetector
+from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
 from ml3_drift.callbacks.base import logger_callback
 
 
@@ -37,7 +38,8 @@ if __name__ == "__main__":
     # to monitor the drift in the embeddings.
 
     hf_pipe = HuggingFaceDriftDetectionPipeline(
-        drift_detector=KSDriftDetector(
+        drift_detector=BonferroniCorrectionAlgorithm(
+            algorithm=KSAlgorithm(p_value=0.05),
             callbacks=[
                 partial(
                     logger_callback,

@@ -2,11 +2,11 @@ import numpy as np
 import torch
 from transformers import Pipeline, pipeline
 
-from ml3_drift.huggingface.base import BaseDriftDetector
+from ml3_drift.monitoring.base import MonitoringAlgorithm
 
 
 class HuggingFaceDriftDetectionPipeline:
-    def __init__(self, drift_detector: BaseDriftDetector, **kwargs):
+    def __init__(self, drift_detector: MonitoringAlgorithm, **kwargs):  # noqa: F821
         """
         Init
         """
@@ -111,12 +111,12 @@ class HuggingFaceDriftDetectionPipeline:
                 return data
             case 3:
                 # Take mean over the second-to-last dimension
-                return data.mean(axis=1).reshape(1, -1)
+                return data.mean(axis=1).reshape(-1, 1)
 
             case 4:
                 # Take mean over the second-to-last dimension and reshape
-                # so that each sample is a row and each feature is a column
-                return np.mean(data, axis=2).reshape(data.shape[0], -1)
+                # so that each sample is a column vector
+                return np.mean(data, axis=2).reshape(-1, data.shape[0])
             case _:
                 raise ValueError(
                     "Shape mismatch detected: expected data to have 3 or 4 dimensions, "

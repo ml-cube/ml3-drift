@@ -18,6 +18,13 @@ class KSAlgorithm(UnivariateMonitoringAlgorithm):
     ----------
     p_value: float
         p-value threshold for detecting drift. Default is 0.005.
+    callbacks: list[Callable[[DriftInfo | None], None]] | None, optional
+        A list of callback functions that are called when a drift is detected.
+        Each callback receives a DriftInfo object containing information about the detected drift.
+        If not provided, no callbacks are used. The current type hint also includes
+        the case where drift_info is None (which happens for only some algorithms). This
+        will change in the future as it's not very useful to have a callback that
+        receives None as input.
     """
 
     @classmethod
@@ -31,7 +38,7 @@ class KSAlgorithm(UnivariateMonitoringAlgorithm):
     def __init__(
         self,
         p_value: float = 0.005,
-        callbacks: list[Callable[[DriftInfo], None]] | None = None,
+        callbacks: list[Callable[[DriftInfo | None], None]] | None = None,
     ) -> None:
         super().__init__(
             comparison_size=None,

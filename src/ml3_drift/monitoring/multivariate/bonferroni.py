@@ -25,9 +25,13 @@ class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
         The univariate monitoring algorithm to be used for each dimension.
     p_value: float, default=0.005
         The p-value threshold for detecting drift, will be adjusted using Bonferroni correction.
-    callbacks: list[Callable[[DriftInfo], None]] | None, default=None
-        Callbacks to be executed when drift is detected.
-        Each callback will receive a DriftInfo object with details about the detected drift.
+    callbacks: list[Callable[[DriftInfo | None], None]] | None, optional
+        A list of callback functions that are called when a drift is detected.
+        Each callback receives a DriftInfo object containing information about the detected drift.
+        If not provided, no callbacks are used. The current type hint also includes
+        the case where drift_info is None (which happens for only some algorithms). This
+        will change in the future as it's not very useful to have a callback that
+        receives None as input.
     """
 
     @classmethod
@@ -42,7 +46,7 @@ class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
         self,
         algorithm: T,
         p_value: float = 0.005,
-        callbacks: list[Callable[[DriftInfo], None]] | None = None,
+        callbacks: list[Callable[[DriftInfo | None], None]] | None = None,
     ) -> None:
         super().__init__(comparison_size=None, callbacks=callbacks)
         self.p_value = p_value
