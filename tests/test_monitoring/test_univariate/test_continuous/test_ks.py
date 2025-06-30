@@ -10,7 +10,7 @@ def test_ks():
     mu_0, sigma_0 = 1.4, 0.4
     mu_1, sigma_1 = 2.4, 0.5
 
-    alg = KSAlgorithm(comparison_size=100)
+    alg = KSAlgorithm()
 
     alg.fit(rng.normal(mu_0, sigma_0, size=(300, 1)))
 
@@ -18,8 +18,6 @@ def test_ks():
     output = alg.detect(rng.normal(mu_0, sigma_0, size=(300, 1)))
     assert all([not elem.drift_detected for elem in output])
 
-    # Adding drifted data
-    # Drift will be detected after the comparison data will be filled
-    # with data from new distribution
+    # Adding drifted data, expecting drift
     output = alg.detect(rng.normal(mu_1, sigma_1, size=(300, 1)))
     assert any([elem.drift_detected for elem in output])

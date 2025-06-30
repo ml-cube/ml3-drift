@@ -5,7 +5,8 @@ from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
 from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
 from tests.conftest import is_module_available, build_data
 
-
+# Generate all possible combinations, then remove those that are not available
+# in the current environment according to the installed extras.
 input_types = ["cont", "cat", "mix"]
 y_types = ["cont", "cat", None]
 n_drifts = [0, 1, 2]
@@ -58,12 +59,11 @@ def test_batch_analyzer(input_type, y_type, n_drifts, data_format):
     )
 
     analyzer = BatchDataDriftAnalyzer(
-        continuous_ma_builder=lambda comparison_size: BonferroniCorrectionAlgorithm(
-            comparison_size, lambda p_value: KSAlgorithm(comparison_size, p_value)
+        continuous_ma_builder=lambda _: BonferroniCorrectionAlgorithm(
+            algorithm_builder=lambda p_value: KSAlgorithm(p_value=p_value),
         ),
-        categorical_ma_builder=lambda comparison_size: BonferroniCorrectionAlgorithm(
-            comparison_size,
-            lambda p_value: ChiSquareAlgorithm(comparison_size, p_value),
+        categorical_ma_builder=lambda _: BonferroniCorrectionAlgorithm(
+            algorithm_builder=lambda p_value: ChiSquareAlgorithm(p_value=p_value),
         ),
         batch_size=50,
     )

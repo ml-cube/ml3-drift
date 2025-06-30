@@ -12,28 +12,44 @@ from ml3_drift.models.monitoring import (
 
 
 class MonitoringAlgorithm(ABC):
-    """A Monitoring Algorithm is a class that analyze sequentially
-    data samples comparing them with reference data.
-    According to the computed statistics, the compared data can be
-    marked as different and a drift is signaled.
+    """
+    A Monitoring Algorithm is statistical method that analyzes sequential data
+    samples by comparing them against a reference dataset.
+    Based on the computed statistics, it can identify significant differences and signal a drift.
 
-    This abstract class provides standard interface following the
-    sklearn paradigm with the method fit(X) to initialize the algorithm.
-    The method detect(X) is equivalent to the known predict(X) or transform(X).
+    This abstract class follows the standard scikit-learn interface, using the fit(X) method
+    to initialize the algorithm with reference data, and the detect(X) method to analyze new data samples
+    (serving a similar purpose to predict(X) in scikit-learn classifiers).
 
-    The class can have a list of callbacks called as soon as a drift is detected,
-    a callback is a function that receives as input the drift info
+    According to the algorithm specifications, the monitoring can be performed in two modes:
+    - Online: where the algorithm analyzes data samples sequentially, using a sliding window approach.
+    - Offline: where the algorithm analyzes a batch of data samples at once, comparing them against
+        the reference dataset.
+
+    The class also support a list of callbacks that are automatically called when a drift is detected. Each callback
+    receives a DriftInfo object containing information about the detected drift.
+
+    Parameters
+    ----------
+    comparison_size: int | None, optional
+        Only relevant in online monitoring algorithms.
+        It defines the size of the sliding window used for comparison.
+    callbacks: list[Callable[[DriftInfo], None]], optional
+        A list of callback functions that are called when a drift is detected.
+        Each callback receives a DriftInfo object containing information about the detected drift.
+        If not provided, no callbacks are used.
     """
 
-    _specs: MonitoringAlgorithmSpecs
-
     @classmethod
+    @abstractmethod
     def specs(cls) -> MonitoringAlgorithmSpecs:
-        return cls._specs
+        """
+        Abstract property that returns the specifications of the monitoring algorithm.
+        """
 
     def __init__(
         self,
-        comparison_size: int,
+        comparison_size: int | None = None,
         callbacks: list[Callable[[DriftInfo], None]] | None = None,
     ) -> None:
         self.comparison_size = comparison_size
@@ -42,11 +58,7 @@ class MonitoringAlgorithm(ABC):
         self.has_callbacks = len(self.callbacks) > 0
 
         self.is_fitted = False
-        # post fit attributes
-        self.reference_size = 0
-        self.data_shape = 0
-        # post detect attributes
-        self.comparison_data: np.ndarray = np.array([])
+        self.reset_internal_parameters()
 
     def _is_valid(self, X: np.ndarray) -> tuple[bool, str]:
         """Additional validation performed by subclasses.
@@ -63,9 +75,24 @@ class MonitoringAlgorithm(ABC):
         if not is_valid:
             raise ValueError(message)
 
+    def reset_internal_parameters(self):
+        """
+        Reset the internal parameters of the monitoring algorithm.
+        """
+
+        self.reference_size = 0
+        self.data_shape = 0
+        self.comparison_data = np.array([])
+
+        self._reset_internal_parameters()
+
     @abstractmethod
     def _reset_internal_parameters(self):
-        pass
+        """
+        Abstract method to reset internal parameters of the monitoring algorithm.
+        This method should be implemented by subclasses to reset any internal state
+        or parameters that are specific to the algorithm.
+        """
 
     @abstractmethod
     def _fit(self, X: np.ndarray):
@@ -77,13 +104,14 @@ class MonitoringAlgorithm(ABC):
         At the end of the fit procedure, it stores the number of reference samples and
         the dimension of input data."""
 
-        self.reference_size = 0
-        self.data_shape = 0
-        self.comparison_data = np.array([])
+        self.reset_internal_parameters()
 
-        self._reset_internal_parameters()
+        n_dim = X.ndim
 
-        if len(X.shape) == 1:
+        if n_dim > 2:
+            raise ValueError(f"Data must be 1D or 2D array. Got {n_dim} dimensions.")
+
+        if n_dim == 1:
             X = X.reshape(-1, 1)
 
         self._validate(X)
@@ -106,9 +134,10 @@ class MonitoringAlgorithm(ABC):
         Test statistic is computed only when there is enough data for comparison.
         Specifically the number of comparison data is defined by the attribute `comparison_size`.
 
-        Therefore, the first `comparison_size` - 1 are not monitored and they produce a "no drift" output.
-        After that, any new sample is added to `comparison_data` by removing the oldest one, the KS statistic
-        is computed and according to the p-value, the drift is detected."""
+        Therefore, the first `comparison_size` - 1 samples are not monitored and they produce a "no drift" output.
+        After that, any new sample is added to `comparison_data` by removing the oldest one,
+        the detect method is called and the output is returned.
+        """
         # Detection loop
 
         detection_output = []
@@ -126,10 +155,12 @@ class MonitoringAlgorithm(ABC):
             else:
                 self.comparison_data = np.vstack([self.comparison_data, data_to_add])
 
+            # Explained in the docstring
             detection_output = [
                 MonitoringOutput(drift_detected=False, drift_info=None)
                 for _ in range(data_to_add.shape[0] - 1)
             ]
+
             if self.comparison_data.shape[0] == self.comparison_size:
                 detection_output.append(self._detect())
             else:
@@ -147,17 +178,21 @@ class MonitoringAlgorithm(ABC):
         return detection_output
 
     def _offline_detect(self, X: np.ndarray) -> list[MonitoringOutput]:
-        """In offline detection we compare reference data, coming from fit(X), with the
+        """
+        In offline detection we compare reference data, coming from fit(X), with the
         provided batch of data.
 
-        Therefore, we substitute completely the comparison_data with the provided X
+        Returns a single MonitoringOutput object containing the drift detection result.
         """
+
+        # Comparison data are exactly the sample provided here.
         self.comparison_data = X
         return [self._detect()]
 
     def detect(self, X: np.ndarray) -> list[MonitoringOutput]:
-        """Analyzes the provided data computing statistics and defining if they belong
-        to the reference distribution or to another determining a drift.
+        """
+        Analyze the provided data samples against the reference dataset
+        (which needs to be set by calling fit(X) first).
 
         If present, callbacks are called for each drifted sample.
         """
@@ -175,6 +210,10 @@ class MonitoringAlgorithm(ABC):
         self._validate(X)
 
         if self.specs().monitoring_type == MonitoringType.ONLINE:
+            if self.comparison_size is None:
+                raise ValueError(
+                    "Comparison size must be defined for online monitoring algorithms."
+                )
             detection_output = self._online_detect(X)
         else:
             detection_output = self._offline_detect(X)

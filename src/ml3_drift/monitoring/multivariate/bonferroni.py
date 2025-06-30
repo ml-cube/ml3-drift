@@ -17,20 +17,21 @@ class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
     """Extension of p-value based univariate algorithms with Bonferroni correction
     to handle multivariate data"""
 
-    _specs = MonitoringAlgorithmSpecs(
-        data_dimension=DataDimension.MULTIVARIATE,
-        data_type=DataType.MIX,
-        monitoring_type=MonitoringType.OFFLINE,
-    )
+    @classmethod
+    def specs(cls) -> MonitoringAlgorithmSpecs:
+        return MonitoringAlgorithmSpecs(
+            data_dimension=DataDimension.MULTIVARIATE,
+            data_type=DataType.MIX,
+            monitoring_type=MonitoringType.OFFLINE,
+        )
 
     def __init__(
         self,
-        comparison_size: int,
         algorithm_builder: Callable[[float], T],
         p_value: float = 0.005,
         callbacks: list[Callable[[DriftInfo], None]] | None = None,
     ) -> None:
-        super().__init__(comparison_size, callbacks)
+        super().__init__(comparison_size=None, callbacks=callbacks)
         self.p_value = p_value
         self.algorithm_builder = algorithm_builder
 
@@ -40,6 +41,7 @@ class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
 
     def _reset_internal_parameters(self):
         self.algorithms = []
+        self.dims = 0
 
     def _fit(self, X: ndarray):
         self.dims = X.shape[1]
@@ -55,4 +57,7 @@ class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
             output = algorithm._detect()
             if output.drift_detected:
                 drift_detected = True
+
+        # Currently we output a drift_detected = True if any of the algorithms detected drift.
+        # However the drift information is not aggregated. This neds to be improved
         return MonitoringOutput(drift_detected=drift_detected, drift_info=None)

@@ -20,19 +20,23 @@ class KSAlgorithm(UnivariateMonitoringAlgorithm):
         p-value threshold for detecting drift. Default is 0.005.
     """
 
-    _specs = MonitoringAlgorithmSpecs(
-        data_dimension=DataDimension.UNIVARIATE,
-        data_type=DataType.CONTINUOUS,
-        monitoring_type=MonitoringType.OFFLINE,
-    )
+    @classmethod
+    def specs(cls) -> MonitoringAlgorithmSpecs:
+        return MonitoringAlgorithmSpecs(
+            data_dimension=DataDimension.UNIVARIATE,
+            data_type=DataType.CONTINUOUS,
+            monitoring_type=MonitoringType.OFFLINE,
+        )
 
     def __init__(
         self,
-        comparison_size: int,
         p_value: float = 0.005,
         callbacks: list[Callable[[DriftInfo], None]] | None = None,
     ) -> None:
-        super().__init__(comparison_size, callbacks)
+        super().__init__(
+            comparison_size=None,
+            callbacks=callbacks,
+        )
         self.p_value = p_value
 
         # post fit attributes
