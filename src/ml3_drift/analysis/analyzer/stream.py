@@ -1,6 +1,5 @@
 import numpy as np
 
-from typing import Callable
 from ml3_drift.analysis.analyzer.base import DataDriftAnalyzer
 from ml3_drift.analysis.report import Report
 from ml3_drift.monitoring.base import MonitoringAlgorithm
@@ -25,14 +24,14 @@ class StreamDataDriftAnalyzer(DataDriftAnalyzer):
 
     def __init__(
         self,
-        continuous_ma_builder: Callable[[int], MonitoringAlgorithm],
-        categorical_ma_builder: Callable[[int], MonitoringAlgorithm],
+        continuous_monitoring_algorithm: MonitoringAlgorithm | None = None,
+        categorical_monitoring_algorithm: MonitoringAlgorithm | None = None,
         reference_size: int = 100,
         comparison_window_size: int = 100,
     ):
         super().__init__(
-            continuous_ma_builder,
-            categorical_ma_builder,
+            continuous_monitoring_algorithm=continuous_monitoring_algorithm,
+            categorical_monitoring_algorithm=categorical_monitoring_algorithm,
         )
 
         self.reference_size = reference_size
@@ -71,11 +70,11 @@ class StreamDataDriftAnalyzer(DataDriftAnalyzer):
             )
 
         # Algorithm initialization
-        continuous_ma = self.continuous_ma_builder(self.comparison_window_size).fit(
+        continuous_ma = self.continuous_monitoring_algorithm.fit(
             continuous_data[: self.reference_size, :]
         )
 
-        categorical_ma = self.categorical_ma_builder(self.comparison_window_size).fit(
+        categorical_ma = self.categorical_monitoring_algorithm.fit(
             categorical_data[: self.reference_size, :]
         )
 

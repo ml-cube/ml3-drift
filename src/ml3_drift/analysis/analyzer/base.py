@@ -1,10 +1,15 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from typing import TYPE_CHECKING, Callable, Union
+from typing import TYPE_CHECKING, Union
 from typing_extensions import TypeIs
 
 from ml3_drift.analysis.report import Report
 from ml3_drift.monitoring.base import MonitoringAlgorithm
+from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
+from ml3_drift.monitoring.univariate.discrete.chi_square import (
+    ChiSquareAlgorithm,
+)
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -30,19 +35,29 @@ class DataDriftAnalyzer(ABC):
 
     Parameters
     ----------
-    continuous_ma_builder: closure function that accepts int parameter as `comparison_window_size`
-        and returns an instance of a MonitoringAlgorithm
-    categorical_ma_builder: closure function that accepts int parameter as `comparison_window_size`
-        and returns an instance of a MonitoringAlgorithm
+    continuous_monitoring_algorithm: MonitoringAlgorithm | None
+        Algorithm used to monitor continuous data. If None, a default algorithm is used.
+    categorical_monitoring_algorithm: MonitoringAlgorithm | None
+        Algorithm used to monitor categorical data. If None, a default algorithm is used.
     """
 
     def __init__(
         self,
-        continuous_ma_builder: Callable[[int], MonitoringAlgorithm],
-        categorical_ma_builder: Callable[[int], MonitoringAlgorithm],
+        continuous_monitoring_algorithm: MonitoringAlgorithm | None = None,
+        categorical_monitoring_algorithm: MonitoringAlgorithm | None = None,
     ):
-        self.continuous_ma_builder = continuous_ma_builder
-        self.categorical_ma_builder = categorical_ma_builder
+        # We use default algorithms if None is provided.
+        if continuous_monitoring_algorithm is None:
+            continuous_monitoring_algorithm = BonferroniCorrectionAlgorithm(
+                algorithm=KSAlgorithm(),
+            )
+        if categorical_monitoring_algorithm is None:
+            categorical_monitoring_algorithm = BonferroniCorrectionAlgorithm(
+                algorithm=ChiSquareAlgorithm(),
+            )
+
+        self.continuous_monitoring_algorithm = continuous_monitoring_algorithm
+        self.categorical_monitoring_algorithm = categorical_monitoring_algorithm
 
     def _is_list_str(self, columns: list[str] | list[int]) -> TypeIs[list[str]]:
         """Verify if the input variable is a list of str in any element"""

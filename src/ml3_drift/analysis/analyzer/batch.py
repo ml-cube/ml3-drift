@@ -1,7 +1,7 @@
 from collections import defaultdict
+from copy import deepcopy
 import numpy as np
 
-from typing import Callable
 from ml3_drift.analysis.analyzer.base import DataDriftAnalyzer
 from ml3_drift.analysis.report import Report
 from ml3_drift.monitoring.base import MonitoringAlgorithm
@@ -9,9 +9,6 @@ from ml3_drift.monitoring.base import MonitoringAlgorithm
 from ml3_drift.models.monitoring import (
     MonitoringOutput,
 )
-from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
-from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
-from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
 
 
 class BatchDataDriftAnalyzer(DataDriftAnalyzer):
@@ -23,37 +20,22 @@ class BatchDataDriftAnalyzer(DataDriftAnalyzer):
 
     Parameters
     ----------
-    continuous_ma_builder: closure function that accepts int parameter as `comparison_window_size`
-        and returns an instance of a MonitoringAlgorithm
-    categorical_ma_builder: closure function that accepts int parameter as `comparison_window_size`
-        and returns an instance of a MonitoringAlgorithm. Notice that this parameter is needed
-        also when there are no categorical columns (even though it is not used).
+    continuous_monitoring_algorithm: MonitoringAlgorithm | None
+        Algorithm used to monitor continuous data. If None, a default algorithm is used.
+    categorical_monitoring_algorithm: MonitoringAlgorithm | None
+        Algorithm used to monitor categorical data. If None, a default algorithm is used.
     batch_size: initial batch dimensions and also used as comparison_window_size
     """
 
-    DEFAULT_CONTINUOUS_BUILDER: Callable[[int], MonitoringAlgorithm] = (  # noqa: E731
-        lambda _: BonferroniCorrectionAlgorithm(
-            algorithm_builder=lambda p_value: KSAlgorithm(p_value=p_value)
-        )
-    )
-
-    DEFAULT_CATEGORICAL_BUILDER = lambda _: BonferroniCorrectionAlgorithm(  # noqa: E731
-        algorithm_builder=lambda p_value: ChiSquareAlgorithm(p_value=p_value),
-    )
-
     def __init__(
         self,
-        continuous_ma_builder: Callable[
-            [int], MonitoringAlgorithm
-        ] = DEFAULT_CONTINUOUS_BUILDER,
-        categorical_ma_builder: Callable[
-            [int], MonitoringAlgorithm
-        ] = DEFAULT_CATEGORICAL_BUILDER,
+        continuous_monitoring_algorithm: MonitoringAlgorithm | None = None,
+        categorical_monitoring_algorithm: MonitoringAlgorithm | None = None,
         batch_size: int = 100,
     ):
         super().__init__(
-            continuous_ma_builder,
-            categorical_ma_builder,
+            continuous_monitoring_algorithm=continuous_monitoring_algorithm,
+            categorical_monitoring_algorithm=categorical_monitoring_algorithm,
         )
 
         self.batch_size = batch_size
@@ -113,10 +95,11 @@ class BatchDataDriftAnalyzer(DataDriftAnalyzer):
             y_categorical,
             second_batch_indexes,
         )
-        cont_algorithm = self.continuous_ma_builder(self.batch_size).fit(
+
+        cont_algorithm = deepcopy(self.continuous_monitoring_algorithm).fit(
             first_batch_cont
         )
-        cat_algorithm = self.categorical_ma_builder(self.batch_size).fit(
+        cat_algorithm = deepcopy(self.categorical_monitoring_algorithm).fit(
             first_batch_cat
         )
 

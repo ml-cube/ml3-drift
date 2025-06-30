@@ -34,11 +34,23 @@ class ChiSquareAlgorithm(UnivariateMonitoringAlgorithm):
         callbacks: list[Callable[[DriftInfo], None]] | None = None,
     ) -> None:
         super().__init__(comparison_size=None, callbacks=callbacks)
-        self.p_value = p_value
+        self._p_value = p_value
 
         # post fit attributes
         self.reference_counts: dict[str | int, int] = {}
         self.categories: list[str | int] = []
+
+    @property
+    def p_value(self) -> float:
+        """Get the p-value threshold for detecting drift."""
+        return self._p_value
+
+    @p_value.setter
+    def p_value(self, value: float):
+        """Set the p-value threshold for detecting drift"""
+        if value <= 0 or value >= 1:
+            raise ValueError("p_value must be in the range (0, 1).")
+        self._p_value = value
 
     def _reset_internal_parameters(self):
         self.reference_counts = {}

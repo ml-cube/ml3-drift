@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Callable, TypeVar
 
 from numpy import ndarray
@@ -14,8 +15,20 @@ T = TypeVar("T", bound=UnivariateMonitoringAlgorithm)
 
 
 class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
-    """Extension of p-value based univariate algorithms with Bonferroni correction
-    to handle multivariate data"""
+    """
+    Extension of p-value based univariate algorithms with Bonferroni correction
+    to handle multivariate data
+
+    Parameters
+    ----------
+    algorithm: T (UnivariateMonitoringAlgorithm)
+        The univariate monitoring algorithm to be used for each dimension.
+    p_value: float, default=0.005
+        The p-value threshold for detecting drift, will be adjusted using Bonferroni correction.
+    callbacks: list[Callable[[DriftInfo], None]] | None, default=None
+        Callbacks to be executed when drift is detected.
+        Each callback will receive a DriftInfo object with details about the detected drift.
+    """
 
     @classmethod
     def specs(cls) -> MonitoringAlgorithmSpecs:
@@ -27,13 +40,13 @@ class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
 
     def __init__(
         self,
-        algorithm_builder: Callable[[float], T],
+        algorithm: T,
         p_value: float = 0.005,
         callbacks: list[Callable[[DriftInfo], None]] | None = None,
     ) -> None:
         super().__init__(comparison_size=None, callbacks=callbacks)
         self.p_value = p_value
-        self.algorithm_builder = algorithm_builder
+        self.base_algorithm = algorithm
 
         # post fit attributes
         self.dims = 0
@@ -46,13 +59,29 @@ class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
     def _fit(self, X: ndarray):
         self.dims = X.shape[1]
         for i in range(self.dims):
-            algorithm = self.algorithm_builder(self.p_value / self.dims)
+            # Deepcopy the base algorithm to ensure each instance is independent
+            # and can be fitted to its own data slice.
+            algorithm = deepcopy(self.base_algorithm)
+
+            # Check that the algorithm has a setter for p_value
+            # and set it accordingly
+            if (
+                not hasattr(algorithm, "p_value")
+                or not self.base_algorithm.__class__.p_value.fset is not None  # type: ignore
+            ):
+                raise ValueError(
+                    f"Algorithm {algorithm.__class__.__name__} does not have a 'p_value' attribute."
+                )
+
+            algorithm.p_value = self.p_value / self.dims  # Bonferroni correction
+
             algorithm.fit(X[:, i : i + 1])
             self.algorithms.append(algorithm)
 
     def _detect(self) -> MonitoringOutput:
         drift_detected = False
         for i, algorithm in enumerate(self.algorithms):
+            # Update the comparison data for the algorithm and call inner _detect method
             algorithm.comparison_data = self.comparison_data[:, i : i + 1]
             output = algorithm._detect()
             if output.drift_detected:

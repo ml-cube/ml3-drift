@@ -11,13 +11,15 @@ input_types = ["cont", "cat", "mix"]
 y_types = ["cont", "cat", None]
 n_drifts = [0, 1, 2]
 data_formats = ["numpy", "polars", "pandas"]
+with_default_params = [True, False]
 
-input_definition_test_params: list[tuple[str, str | None, int, str]] = [
-    (input_type, y_type, n_drift, data_format)
+input_definition_test_params: list[tuple[str, str | None, int, str, bool]] = [
+    (input_type, y_type, n_drift, data_format, with_default)
     for input_type in input_types
     for y_type in y_types
     for n_drift in n_drifts
     for data_format in data_formats
+    for with_default in with_default_params
 ]
 
 if not is_module_available("polars"):
@@ -36,10 +38,10 @@ if not is_module_available("pandas"):
 
 
 @pytest.mark.parametrize(
-    "input_type, y_type, n_drifts, data_format",
+    "input_type, y_type, n_drifts, data_format, with_default",
     input_definition_test_params,
 )
-def test_batch_analyzer(input_type, y_type, n_drifts, data_format):
+def test_batch_analyzer(input_type, y_type, n_drifts, data_format, with_default):
     """
     Test the BatchDataDriftAnalyzer with various input types, y types, number of drifts, and data formats.
     """
@@ -58,13 +60,21 @@ def test_batch_analyzer(input_type, y_type, n_drifts, data_format):
         seed=2,
     )
 
+    if with_default:
+        continuous_algo = None
+        categorical_algo = None
+
+    else:
+        continuous_algo = BonferroniCorrectionAlgorithm(
+            algorithm=KSAlgorithm(p_value=0.05)
+        )
+        categorical_algo = BonferroniCorrectionAlgorithm(
+            algorithm=ChiSquareAlgorithm(p_value=0.05)
+        )
+
     analyzer = BatchDataDriftAnalyzer(
-        continuous_ma_builder=lambda _: BonferroniCorrectionAlgorithm(
-            algorithm_builder=lambda p_value: KSAlgorithm(p_value=p_value),
-        ),
-        categorical_ma_builder=lambda _: BonferroniCorrectionAlgorithm(
-            algorithm_builder=lambda p_value: ChiSquareAlgorithm(p_value=p_value),
-        ),
+        continuous_monitoring_algorithm=continuous_algo,
+        categorical_monitoring_algorithm=categorical_algo,
         batch_size=50,
     )
 
