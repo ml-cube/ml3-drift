@@ -9,6 +9,9 @@ from ml3_drift.monitoring.base import MonitoringAlgorithm
 from ml3_drift.models.monitoring import (
     MonitoringOutput,
 )
+from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
+from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
 
 
 class BatchDataDriftAnalyzer(DataDriftAnalyzer):
@@ -23,14 +26,29 @@ class BatchDataDriftAnalyzer(DataDriftAnalyzer):
     continuous_ma_builder: closure function that accepts int parameter as `comparison_window_size`
         and returns an instance of a MonitoringAlgorithm
     categorical_ma_builder: closure function that accepts int parameter as `comparison_window_size`
-        and returns an instance of a MonitoringAlgorithm
+        and returns an instance of a MonitoringAlgorithm. Notice that this parameter is needed
+        also when there are no categorical columns (even though it is not used).
     batch_size: initial batch dimensions and also used as comparison_window_size
     """
 
+    DEFAULT_CONTINUOUS_BUILDER: Callable[[int], MonitoringAlgorithm] = (  # noqa: E731
+        lambda _: BonferroniCorrectionAlgorithm(
+            algorithm_builder=lambda p_value: KSAlgorithm(p_value=p_value)
+        )
+    )
+
+    DEFAULT_CATEGORICAL_BUILDER = lambda _: BonferroniCorrectionAlgorithm(  # noqa: E731
+        algorithm_builder=lambda p_value: ChiSquareAlgorithm(p_value=p_value),
+    )
+
     def __init__(
         self,
-        continuous_ma_builder: Callable[[int], MonitoringAlgorithm],
-        categorical_ma_builder: Callable[[int], MonitoringAlgorithm],
+        continuous_ma_builder: Callable[
+            [int], MonitoringAlgorithm
+        ] = DEFAULT_CONTINUOUS_BUILDER,
+        categorical_ma_builder: Callable[
+            [int], MonitoringAlgorithm
+        ] = DEFAULT_CATEGORICAL_BUILDER,
         batch_size: int = 100,
     ):
         super().__init__(
