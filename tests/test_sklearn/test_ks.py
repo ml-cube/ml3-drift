@@ -1,3 +1,4 @@
+from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
 import pytest
 
 from tests.conftest import is_module_available
@@ -9,6 +10,7 @@ if is_module_available("sklearn"):
     from sklearn.pipeline import Pipeline
     from sklearn.utils.estimator_checks import parametrize_with_checks
 
+    from ml3_drift.sklearn.base import SklearnDriftDetector
     from ml3_drift.sklearn.univariate.ks import KSDriftDetector
 
 else:
@@ -21,7 +23,9 @@ class TestKSDriftDetector:
     Test suite for KSDriftDetector in the SKlearn module
     """
 
-    @parametrize_with_checks([KSDriftDetector()])
+    @parametrize_with_checks(
+        [SklearnDriftDetector(monitoring_algorithm=KSAlgorithm()), KSDriftDetector()]
+    )
     def test_sklearn_compatible_estimator(self, estimator, check):
         """
         Sklearn utility to check estimator compliance.
@@ -66,6 +70,39 @@ class TestKSDriftDetector:
         cat_pipe = Pipeline(
             steps=[
                 ("ks", KSDriftDetector()),
+                (
+                    "regr",
+                    LinearRegression(),
+                ),
+            ]
+        )
+
+        train_cont_data = np.column_stack(
+            (
+                np.random.randn(100),
+                np.random.randn(100),
+            )
+        )
+
+        y = np.random.randn(100)
+
+        # Fit the detector to the data
+        cat_pipe.fit(train_cont_data, y)
+
+        # Check that the detector is fitted
+        assert cat_pipe.named_steps["ks"].is_fitted_ is True
+
+        cat_pipe.predict(train_cont_data)
+
+    def test_in_pipeline_new(self):
+        """
+        Test KSDriftDetector in a pipeline.
+        """
+        # Create a sample dataset
+
+        cat_pipe = Pipeline(
+            steps=[
+                ("ks", SklearnDriftDetector(KSAlgorithm())),
                 (
                     "regr",
                     LinearRegression(),

@@ -24,15 +24,15 @@ input_definition_test_params: list[tuple[str, str | None, int, str, bool]] = [
 
 if not is_module_available("polars"):
     input_definition_test_params = [
-        (input_type, y_type, n_drifts, data_format)
-        for input_type, y_type, n_drifts, data_format in input_definition_test_params
+        (input_type, y_type, n_drifts, data_format, with_default_params)
+        for input_type, y_type, n_drifts, data_format, with_default_params in input_definition_test_params
         if data_format != "polars"
     ]
 
 if not is_module_available("pandas"):
     input_definition_test_params = [
-        (input_type, y_type, n_drifts, data_format)
-        for input_type, y_type, n_drifts, data_format in input_definition_test_params
+        (input_type, y_type, n_drifts, data_format, with_default_params)
+        for input_type, y_type, n_drifts, data_format, with_default_params in input_definition_test_params
         if data_format != "pandas"
     ]
 
