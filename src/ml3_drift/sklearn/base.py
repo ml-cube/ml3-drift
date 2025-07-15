@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from sklearn.utils.validation import validate_data
 
 from ml3_drift.callbacks.models import DriftInfo
-from ml3_drift.enums.monitoring import DataDimension, DataType
+from ml3_drift.enums.monitoring import DataDimension
 from ml3_drift.monitoring.base import MonitoringAlgorithm
 
 from copy import deepcopy
@@ -113,10 +113,16 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
         for univariate data, then one clone for each column is used.
     """
 
-    def __init__(self, monitoring_algorithm: MonitoringAlgorithm) -> None:
+    def __repr__(self):
+        return "SklearnDriftDetector"
+
+    def __str__(self):
+        return "SklearnDriftDetector"
+
+    def __init__(self, monitoring_algorithm: MonitoringAlgorithm):
         super().__init__()
         self.monitoring_algorithm = monitoring_algorithm
-        self.monitoring_algorithm_list: list[MonitoringAlgorithm] = []
+        self._monitoring_algorithm_list: list[MonitoringAlgorithm] = []
 
     def fit(self, X, y=None):
         """Fit method.
@@ -125,8 +131,8 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
         If the monitoring algorithm is univariate then for each column a clone
         is used.
         """
-
-        X = self._validate_data(X, reset=False)
+        self._monitoring_algorithm_list = []
+        X = self._validate_data(X, reset=True)
 
         if (
             self.monitoring_algorithm.specs().data_dimension == DataDimension.UNIVARIATE
@@ -134,7 +140,7 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
             for i in range(X.shape[1]):
                 ma = deepcopy(self.monitoring_algorithm)
                 ma.fit(X[:, i])
-                self.monitoring_algorithm_list.append(ma)
+                self._monitoring_algorithm_list.append(ma)
         else:
             self.monitoring_algorithm.fit(X)
 
@@ -151,7 +157,7 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
         if (
             self.monitoring_algorithm.specs().data_dimension == DataDimension.UNIVARIATE
         ) and (X.shape[1] > 1):
-            for i, ma in enumerate(self.monitoring_algorithm_list):
+            for i, ma in enumerate(self._monitoring_algorithm_list):
                 ma.detect(X[:, i])
         else:
             self.monitoring_algorithm.detect(X)
@@ -167,7 +173,7 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
         if (
             self.monitoring_algorithm.specs().data_dimension == DataDimension.UNIVARIATE
         ) and (X.shape[1] > 1):
-            for i, ma in enumerate(self.monitoring_algorithm_list):
+            for i, ma in enumerate(self._monitoring_algorithm_list):
                 ma.detect(X[:, i])
         else:
             self.monitoring_algorithm.detect(X)
@@ -189,7 +195,7 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
             X, _ = validate_data(self, X, y, reset=reset, accept_sparse=False)
         return X
 
-    def __sklearn_tags__(self):
+    """ def __sklearn_tags__(self):
         tags = super().__sklearn_tags__()
 
         if self.monitoring_algorithm.specs().data_type in [
@@ -203,4 +209,4 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
             tags.input_tags.allow_nan = True
             tags.input_tags.string = True
 
-        return tags
+        return tags """

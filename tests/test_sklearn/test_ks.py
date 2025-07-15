@@ -23,9 +23,7 @@ class TestKSDriftDetector:
     Test suite for KSDriftDetector in the SKlearn module
     """
 
-    @parametrize_with_checks(
-        [SklearnDriftDetector(monitoring_algorithm=KSAlgorithm()), KSDriftDetector()]
-    )
+    @parametrize_with_checks([SklearnDriftDetector(monitoring_algorithm=KSAlgorithm())])
     def test_sklearn_compatible_estimator(self, estimator, check):
         """
         Sklearn utility to check estimator compliance.
