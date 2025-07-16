@@ -231,15 +231,17 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
                 else:
                     return X[~np.any(np.isnan(X))]
             elif np.issubdtype(X.dtype, np.object_):
+                # Since the dtype is object we cannot apply the function np.isnan
+                # Therefore, we need to iterate over each row
+                # According to the number of columns we can have an array or a scalar
+                # if it is an array then we cast it to a list and check if it contains None
+                # if it is a scalar then we use np.isnan if it is a float or not None otherwise
                 return X[
                     np.array(
                         [
                             [
                                 not (
-                                    (isinstance(x, list) and None in x)
-                                    or (
-                                        isinstance(x, np.ndarray) and None in x.tolist()
-                                    )
+                                    (isinstance(x, np.ndarray) and None in x.tolist())
                                     or (isinstance(x, float) and np.isnan(x))
                                     or (x is None)
                                 )
