@@ -1,5 +1,7 @@
 import pytest
 
+from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
+from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
 from tests.conftest import is_module_available
 
 if is_module_available("sklearn"):
@@ -9,19 +11,24 @@ if is_module_available("sklearn"):
     from sklearn.pipeline import Pipeline
     from sklearn.utils.estimator_checks import parametrize_with_checks
 
-    from ml3_drift.sklearn.univariate.ks import KSDriftDetector
+    from ml3_drift.sklearn.base import SklearnDriftDetector
 
 else:
     # Prevent tests from running if sklearn is not available
     pytest.skip(allow_module_level=True)
 
 
-class TestKSDriftDetector:
+class TestSklearnDriftDetector:
     """
     Test suite for KSDriftDetector in the SKlearn module
     """
 
-    @parametrize_with_checks([KSDriftDetector()])
+    @parametrize_with_checks(
+        [
+            SklearnDriftDetector(monitoring_algorithm=KSAlgorithm()),
+            SklearnDriftDetector(monitoring_algorithm=ChiSquareAlgorithm()),
+        ]
+    )
     def test_sklearn_compatible_estimator(self, estimator, check):
         """
         Sklearn utility to check estimator compliance.
@@ -29,18 +36,28 @@ class TestKSDriftDetector:
         """
         check(estimator)
 
-    def test_fails_with_none(self):
+    @pytest.mark.parametrize(
+        "detector",
+        [
+            SklearnDriftDetector(monitoring_algorithm=KSAlgorithm()),
+            SklearnDriftDetector(monitoring_algorithm=ChiSquareAlgorithm()),
+        ],
+    )
+    def test_supports_none(self, detector):
         """
         Test that the estimator fails when fit with None.
         """
-        detector = KSDriftDetector()
-        with pytest.raises(ValueError):
-            detector.fit(np.array([[2, 2, None, 3]]).reshape(-1, 1))
+        detector.fit(np.array([[2, 2, None, 3]]).reshape(-1, 1))
+        detector.fit(np.array([[2, 2, None, 3]]).reshape(-1, 1), None)
 
-        with pytest.raises(ValueError):
-            detector.fit(np.array([[2, 2, None, 3]]).reshape(-1, 1), None)
-
-    def test_fit(self):
+    @pytest.mark.parametrize(
+        "detector",
+        [
+            SklearnDriftDetector(monitoring_algorithm=KSAlgorithm()),
+            SklearnDriftDetector(monitoring_algorithm=ChiSquareAlgorithm()),
+        ],
+    )
+    def test_fit(self, detector):
         """
         Test the fit method of KSDriftDetector.
         """
@@ -48,16 +65,20 @@ class TestKSDriftDetector:
         X = np.array([[1, 2], [2, 3], [3, 4]])
         y = np.array([0, 1, 0])
 
-        # Create an instance of the detector
-        detector = KSDriftDetector()
-
         # Fit the detector to the data
         detector.fit(X, y)
 
         # Check that the detector is fitted
         assert detector.is_fitted_ is True
 
-    def test_in_pipeline(self):
+    @pytest.mark.parametrize(
+        "detector",
+        [
+            SklearnDriftDetector(monitoring_algorithm=KSAlgorithm()),
+            SklearnDriftDetector(monitoring_algorithm=ChiSquareAlgorithm()),
+        ],
+    )
+    def test_in_pipeline(self, detector):
         """
         Test KSDriftDetector in a pipeline.
         """
@@ -65,7 +86,7 @@ class TestKSDriftDetector:
 
         cat_pipe = Pipeline(
             steps=[
-                ("ks", KSDriftDetector()),
+                ("detector", detector),
                 (
                     "regr",
                     LinearRegression(),
@@ -75,17 +96,17 @@ class TestKSDriftDetector:
 
         train_cont_data = np.column_stack(
             (
-                np.random.randn(100),
-                np.random.randn(100),
+                np.random.randint(5, size=(100,)),
+                np.random.randint(5, size=(100,)),
             )
         )
 
-        y = np.random.randn(100)
+        y = np.random.rand(100)
 
         # Fit the detector to the data
         cat_pipe.fit(train_cont_data, y)
 
         # Check that the detector is fitted
-        assert cat_pipe.named_steps["ks"].is_fitted_ is True
+        assert cat_pipe.named_steps["detector"].is_fitted_ is True
 
         cat_pipe.predict(train_cont_data)

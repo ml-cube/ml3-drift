@@ -17,7 +17,7 @@ runs:
 
     - name: 🦾 💅 🧪 Install and validate extras
       run: |
-        extras=("sklearn" "huggingface")
+        extras=("sklearn" "huggingface", "polars", "pandas")
 
         for extra in "${extras[@]}"; do
           echo "🦾 Installing extra: $extra"
