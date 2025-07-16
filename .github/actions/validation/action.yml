@@ -3,7 +3,6 @@ description: format, lint, test code
 runs:
   using: "composite"
   steps:
-
     - name: 📦 Install uv
       uses: astral-sh/setup-uv@v6
 
@@ -17,7 +16,7 @@ runs:
 
     - name: 🦾 💅 🧪 Install and validate extras
       run: |
-        extras=("sklearn" "huggingface", "polars", "pandas")
+        extras=("sklearn" "huggingface" "polars" "pandas")
 
         for extra in "${extras[@]}"; do
           echo "🦾 Installing extra: $extra"
