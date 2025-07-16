@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Self
+from typing_extensions import Self
+from typing import Callable
 import numpy as np
 
 from ml3_drift.enums.monitoring import MonitoringType

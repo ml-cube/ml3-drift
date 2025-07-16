@@ -42,7 +42,7 @@ format:
 # Run ruff linting and mypy type checking
 lint:
 	uv run ruff check --fix
-	uv run mypy --ignore-missing-imports --install-types --non-interactive --package ml3_drift
+	uv run mypy --ignore-missing-imports --install-types --non-interactive --package ml3_drift --python-version 3.10
 
 
 # Default value for testWorkers is auto (meaning all workers available)
