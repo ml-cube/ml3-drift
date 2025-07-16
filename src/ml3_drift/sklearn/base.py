@@ -1,10 +1,11 @@
+import numpy as np
+
 from collections.abc import Callable
 from sklearn.base import BaseEstimator, TransformerMixin, check_is_fitted
 from abc import ABC, abstractmethod
 from sklearn.utils.validation import validate_data
-
 from ml3_drift.callbacks.models import DriftInfo
-from ml3_drift.enums.monitoring import DataDimension
+from ml3_drift.enums.monitoring import DataDimension, DataType
 from ml3_drift.monitoring.base import MonitoringAlgorithm
 
 from copy import deepcopy
@@ -114,10 +115,10 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
     """
 
     def __repr__(self):
-        return "SklearnDriftDetector"
+        return f"SklearnDriftDetector({self.monitoring_algorithm})"
 
     def __str__(self):
-        return "SklearnDriftDetector"
+        return f"SklearnDriftDetector({self.monitoring_algorithm})"
 
     def __init__(self, monitoring_algorithm: MonitoringAlgorithm):
         super().__init__()
@@ -187,26 +188,81 @@ class SklearnDriftDetector(TransformerMixin, BaseEstimator):
         Child classes can override with their own validation methods if needed
         or just call the base class method with the custom parameters.
         """
-
         # Workaround since validate data doesn't return y if it is None
-        if y is None:
-            X = validate_data(self, X, reset=reset, accept_sparse=False)
+        if self.monitoring_algorithm.specs().data_type in [
+            DataType.DISCRETE,
+            DataType.MIX,
+        ]:
+            dtype = None
         else:
-            X, _ = validate_data(self, X, y, reset=reset, accept_sparse=False)
+            dtype = "numeric"
+
+        if y is None:
+            X = validate_data(
+                self,
+                X,
+                reset=reset,
+                accept_sparse=False,
+                ensure_all_finite=False,
+                dtype=dtype,
+            )
+        else:
+            X, _ = validate_data(
+                self,
+                X,
+                y,
+                reset=reset,
+                accept_sparse=False,
+                ensure_all_finite=False,
+                dtype=dtype,
+            )
+        X = self._safe_nan_clean(X)
         return X
 
-    """ def __sklearn_tags__(self):
+    def _safe_nan_clean(self, X):
+        """
+        Clean NaN values from the data. Different approach according to the type of data.
+        """
+        # Extend with other types
+        if isinstance(X, np.ndarray):
+            if np.issubdtype(X.dtype, np.number):
+                if len(X.shape) > 1:
+                    return X[~np.any(np.isnan(X), axis=1)]
+                else:
+                    return X[~np.any(np.isnan(X))]
+            elif np.issubdtype(X.dtype, np.object_):
+                return X[
+                    np.array(
+                        [
+                            [
+                                not (
+                                    (isinstance(x, list) and None in x)
+                                    or (
+                                        isinstance(x, np.ndarray) and None in x.tolist()
+                                    )
+                                    or (isinstance(x, float) and np.isnan(x))
+                                    or (x is None)
+                                )
+                            ]
+                            for x in X
+                        ]
+                    ).ravel()
+                ]
+            elif np.issubdtype(X.dtype, np.str_):
+                return X[~np.any(np.isin(X, [None, np.nan]))]
+            else:
+                raise ValueError("Unsupported data type")
+        return X
+
+    def __sklearn_tags__(self):
         tags = super().__sklearn_tags__()
+        tags.input_tags.allow_nan = True
 
         if self.monitoring_algorithm.specs().data_type in [
             DataType.DISCRETE,
             DataType.MIX,
         ]:
-            # Input needs to be categorical
-            # We need to set also allow nan
-            # otherwise tests fail
             tags.input_tags.categorical = True
-            tags.input_tags.allow_nan = True
             tags.input_tags.string = True
 
-        return tags """
+        return tags

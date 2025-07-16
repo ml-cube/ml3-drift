@@ -27,6 +27,12 @@ class KSAlgorithm(UnivariateMonitoringAlgorithm):
         receives None as input.
     """
 
+    def __repr__(self):
+        return f"KSAlgorithm({self.p_value})"
+
+    def __str__(self):
+        return f"KSAlgorithm({self.p_value})"
+
     @classmethod
     def specs(cls) -> MonitoringAlgorithmSpecs:
         return MonitoringAlgorithmSpecs(

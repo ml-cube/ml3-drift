@@ -46,7 +46,7 @@ lint:
 
 
 # Default value for testWorkers is auto (meaning all workers available)
-# If you want to pass a custom value (such as 4): `just test testWorkers=4`
+# If you want to pass a custom value (such as 4): `just testWorkers=4 test`
 # We also run ruff on tests files (it's so fast that it's worth it)
 
 # Little caveat: when running tests with only an extra installed, you'd like

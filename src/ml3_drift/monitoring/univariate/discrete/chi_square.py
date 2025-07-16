@@ -27,6 +27,12 @@ class ChiSquareAlgorithm(UnivariateMonitoringAlgorithm):
         receives None as input.
     """
 
+    def __repr__(self):
+        return f"ChiSquareAlgorithm({self.p_value})"
+
+    def __str__(self):
+        return f"ChiSquareAlgorithm({self.p_value})"
+
     @classmethod
     def specs(cls) -> MonitoringAlgorithmSpecs:
         return MonitoringAlgorithmSpecs(
