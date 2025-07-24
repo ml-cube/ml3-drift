@@ -8,6 +8,7 @@ license = { text = "Apache-2.0" }
 readme = "README.md"
 
 dependencies = [
+    "river>=0.22.0",
     "scipy>=1.15.3",
 ]
 

@@ -43,8 +43,75 @@ def image_data():
     """
 
     return Image.fromarray(np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8))
+@pytest.fixture
+def abrupt_multivariate_drift_info():
+    """
+    A tabular data source fixture, simulating a multivariate abrupt
+    drift.
+    """
+    np.random.seed(0)
+    drift_point1 = 1000
+    drift_point2 = 2000
+    first_stream_length = 1000
+    second_stream_length = 1000
+    third_stream_length = 1000
+    num_concepts = 3
 
+    means = [
+        np.array(
+            [
+                int(np.random.uniform(size=1) * 20),
+                int(np.random.uniform(size=1) * 20),
+            ]
+        ).reshape(-1)
+        for _ in range(num_concepts)
+    ]
+    covariances = [np.eye(2) for _ in range(num_concepts)]
 
+    first_stream = [
+        np.around(i, 4)
+        for i in np.random.multivariate_normal(
+            means[0], covariances[0], first_stream_length
+        )
+    ]
+    second_stream = [
+        np.around(i, 4)
+        for i in np.random.multivariate_normal(
+            means[1], covariances[1], second_stream_length
+        )
+    ]
+    third_stream = [
+        np.around(i, 4)
+        for i in np.random.multivariate_normal(
+            means[2], covariances[2], third_stream_length
+        )
+    ]
+
+    final_error_stream = np.concatenate(
+        (first_stream, second_stream, third_stream), axis=0
+    )
+
+    return final_error_stream, drift_point1, drift_point2
+@pytest.fixture
+def abrupt_univariate_drift_info():
+    """
+    A tabular data source fixture, simulating a univariate abrupt drift.
+    """
+    np.random.seed(0)
+    drift_point = 500
+    first_stream_length = 500
+    second_stream_length = 500
+
+    first_stream = [
+        round(i, 4) for i in np.random.uniform(0, 4, first_stream_length)
+    ]
+    second_stream = [
+        round(i, 4) for i in np.random.uniform(3, 7, second_stream_length)
+    ]
+
+    final_error_stream = np.concatenate((first_stream, second_stream), axis=0)
+
+    return final_error_stream, drift_point
 # ------------------------------------
 # Test factories
 

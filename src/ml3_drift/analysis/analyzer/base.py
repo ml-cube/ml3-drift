@@ -5,9 +5,9 @@ from typing_extensions import TypeIs
 
 from ml3_drift.analysis.report import Report
 from ml3_drift.monitoring.base import MonitoringAlgorithm
-from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
-from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
-from ml3_drift.monitoring.univariate.discrete.chi_square import (
+from ml3_drift.monitoring.algorithms.batch.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
+from ml3_drift.monitoring.algorithms.batch.chi_square import (
     ChiSquareAlgorithm,
 )
 

@@ -1,7 +1,7 @@
 import pytest
 
-from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
-from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
+from ml3_drift.monitoring.algorithms.batch.chi_square import ChiSquareAlgorithm
+from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
 from tests.conftest import is_module_available
 
 if is_module_available("sklearn"):

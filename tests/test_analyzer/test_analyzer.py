@@ -1,8 +1,8 @@
 import pytest
 from ml3_drift.analysis.analyzer.batch import BatchDataDriftAnalyzer
-from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
-from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
-from ml3_drift.monitoring.univariate.discrete.chi_square import ChiSquareAlgorithm
+from ml3_drift.monitoring.algorithms.batch.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
+from ml3_drift.monitoring.algorithms.batch.chi_square import ChiSquareAlgorithm
 from tests.conftest import is_module_available, build_data
 
 # Generate all possible combinations, then remove those that are not available

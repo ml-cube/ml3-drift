@@ -1,5 +1,5 @@
-from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
-from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
+from ml3_drift.monitoring.algorithms.batch.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
 from tests.conftest import is_module_available
 
 import pytest

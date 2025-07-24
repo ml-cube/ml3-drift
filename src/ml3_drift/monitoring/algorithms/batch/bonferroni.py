@@ -8,13 +8,14 @@ from ml3_drift.models.monitoring import (
     MonitoringAlgorithmSpecs,
     MonitoringOutput,
 )
-from ml3_drift.monitoring.base import MonitoringAlgorithm
-from ml3_drift.monitoring.univariate.base import UnivariateMonitoringAlgorithm
+from ml3_drift.monitoring.base.base_multivariate import MultivariateMonitoringAlgorithm
+from ml3_drift.monitoring.base.base_univariate import UnivariateMonitoringAlgorithm
+from ml3_drift.monitoring.base.batch_monitoring_algorithm import BatchMonitoringAlgorithm
 
 T = TypeVar("T", bound=UnivariateMonitoringAlgorithm)
 
 
-class BonferroniCorrectionAlgorithm(MonitoringAlgorithm):
+class BonferroniCorrectionAlgorithm(BatchMonitoringAlgorithm, MultivariateMonitoringAlgorithm):
     """
     Extension of p-value based univariate algorithms with Bonferroni correction
     to handle multivariate data
