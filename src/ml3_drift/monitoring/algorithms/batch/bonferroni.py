@@ -11,7 +11,7 @@ from ml3_drift.models.monitoring import (
 from ml3_drift.monitoring.base.base_multivariate import MultivariateMonitoringAlgorithm
 from ml3_drift.monitoring.base.base_univariate import UnivariateMonitoringAlgorithm
 from ml3_drift.monitoring.base.batch_monitoring_algorithm import BatchMonitoringAlgorithm
-
+import numpy as np
 T = TypeVar("T", bound=UnivariateMonitoringAlgorithm)
 
 
@@ -60,6 +60,11 @@ class BonferroniCorrectionAlgorithm(BatchMonitoringAlgorithm, MultivariateMonito
     def _reset_internal_parameters(self):
         self.algorithms = []
         self.dims = 0
+    
+    def _is_valid(self, X: np.ndarray) -> tuple[bool, str]:
+        # delegate validation to the internal algorithms
+        # if data is empty, no internal algorithm is created thus causing no errors
+        return True, "" 
 
     def _fit(self, X: ndarray):
         self.dims = X.shape[1]
@@ -81,8 +86,7 @@ class BonferroniCorrectionAlgorithm(BatchMonitoringAlgorithm, MultivariateMonito
             algorithm.p_value = self.p_value / self.dims  # Bonferroni correction
 
             algorithm.fit(X[:, i : i + 1])
-            self.algorithms.append(algorithm)
-
+            self.algorithms.append(algorithm) 
     def _detect(self) -> MonitoringOutput:
         drift_detected = False
         for i, algorithm in enumerate(self.algorithms):

@@ -6,7 +6,7 @@ from typing import Callable
 import numpy as np
 from ml3_drift.exceptions.monitoring import NotFittedError
 from ml3_drift.models.monitoring import DriftInfo, MonitoringOutput
-from ml3_drift.monitoring.base import MonitoringAlgorithm
+from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 
 class OnlineMonitorningAlgorithm(MonitoringAlgorithm, ABC):

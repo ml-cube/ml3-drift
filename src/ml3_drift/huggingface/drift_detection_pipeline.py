@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from transformers import Pipeline, pipeline
 
-from ml3_drift.monitoring.base import MonitoringAlgorithm
+from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 
 class HuggingFaceDriftDetectionPipeline:

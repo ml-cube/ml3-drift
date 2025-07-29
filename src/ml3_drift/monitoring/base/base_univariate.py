@@ -1,7 +1,7 @@
 from abc import ABC
 import numpy as np
 
-from ml3_drift.monitoring.base import MonitoringAlgorithm
+from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 
 class UnivariateMonitoringAlgorithm(MonitoringAlgorithm, ABC):

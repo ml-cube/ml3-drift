@@ -4,7 +4,7 @@ import numpy as np
 
 from ml3_drift.analysis.analyzer.base import DataDriftAnalyzer
 from ml3_drift.analysis.report import Report
-from ml3_drift.monitoring.base import MonitoringAlgorithm
+from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 from ml3_drift.models.monitoring import (
     MonitoringOutput,

@@ -1,5 +1,4 @@
 from importlib import import_module
-
 import pytest
 
 import numpy as np
@@ -43,6 +42,8 @@ def image_data():
     """
 
     return Image.fromarray(np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8))
+
+
 @pytest.fixture
 def abrupt_multivariate_drift_info():
     """
@@ -92,6 +93,8 @@ def abrupt_multivariate_drift_info():
     )
 
     return final_error_stream, drift_point1, drift_point2
+
+
 @pytest.fixture
 def abrupt_univariate_drift_info():
     """
@@ -102,16 +105,48 @@ def abrupt_univariate_drift_info():
     first_stream_length = 500
     second_stream_length = 500
 
-    first_stream = [
-        round(i, 4) for i in np.random.uniform(0, 4, first_stream_length)
-    ]
-    second_stream = [
-        round(i, 4) for i in np.random.uniform(3, 7, second_stream_length)
-    ]
+    first_stream = [round(i, 4) for i in np.random.uniform(0, 4, first_stream_length)]
+    second_stream = [round(i, 4) for i in np.random.uniform(3, 7, second_stream_length)]
 
     final_error_stream = np.concatenate((first_stream, second_stream), axis=0)
 
     return final_error_stream, drift_point
+
+@pytest.fixture
+def abrupt_univariate_online_drift_info():
+    """
+    A tabular data source fixture, simulating a univariate abrupt drift.
+    """
+    np.random.seed(0)
+    data_stream = np.concatenate([
+        np.random.choice([0, 1], size=1000),
+        np.random.choice(range(4, 8), size=1000)
+    ])
+    # specific drift point from 500
+    drift_point_1 = 1000
+    data_stream = np.array(data_stream).reshape(-1, 1)
+
+    return data_stream, drift_point_1
+
+@pytest.fixture
+def abrupt_univariate_online_bidrift_info():
+    """
+    A tabular data source fixture, simulating a univariate abrupt drift.
+    """
+    np.random.seed(0)
+    data_stream = np.concatenate([
+        np.random.choice([0, 1], size=1000),
+        np.random.choice(range(4, 8), size=1000),
+        np.random.choice([0, 1], size=1000)
+    ])
+    # specific drift point from 500
+    drift_point_1 = 1000
+    drift_point_2 = 2000
+    data_stream = np.array(data_stream).reshape(-1, 1)
+
+    return data_stream, drift_point_1, drift_point_2
+
+
 # ------------------------------------
 # Test factories
 
