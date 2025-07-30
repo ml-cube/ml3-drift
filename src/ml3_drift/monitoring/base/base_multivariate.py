@@ -4,7 +4,6 @@ import numpy as np
 from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 
-
 class MultivariateMonitoringAlgorithm(MonitoringAlgorithm, ABC):
     """
     Base class for multivariate monitoring algorithm.

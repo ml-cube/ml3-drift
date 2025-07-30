@@ -2,9 +2,15 @@ from typing import Callable
 
 import numpy as np
 from ml3_drift.enums.monitoring import DataDimension, DataType, MonitoringType
-from ml3_drift.models.monitoring import DriftInfo, MonitoringAlgorithmSpecs, MonitoringOutput
+from ml3_drift.models.monitoring import (
+    DriftInfo,
+    MonitoringAlgorithmSpecs,
+    MonitoringOutput,
+)
 from ml3_drift.monitoring.base.base_univariate import UnivariateMonitoringAlgorithm
-from ml3_drift.monitoring.base.online_monitorning_algorithm import OnlineMonitorningAlgorithm
+from ml3_drift.monitoring.base.online_monitorning_algorithm import (
+    OnlineMonitorningAlgorithm,
+)
 from river.drift.adwin import ADWIN as RiverADWIN
 
 
@@ -32,8 +38,7 @@ class ADWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         self.min_window_length = min_window_length
         self.grace_period = grace_period
         super().__init__(comparison_size=1, callbacks=callbacks)
-        
-        
+
     def _reset_internal_parameters(self):
         self.drift_agent = RiverADWIN(
             delta=self.p_value,
@@ -42,15 +47,14 @@ class ADWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
             min_window_length=self.min_window_length,
             grace_period=self.grace_period,
         )
+
     def _fit(self, X: np.ndarray):
         """Fit the KSWIN algorithm to the data."""
         self._validate(X)
         self.reset_internal_parameters()
         self.is_fitted = True
+
     def _detect(self):
         self.drift_agent.update(self.comparison_data)
         drift_detected = self.drift_agent.drift_detected
         return MonitoringOutput(drift_detected=drift_detected, drift_info=None)
-        
-
-

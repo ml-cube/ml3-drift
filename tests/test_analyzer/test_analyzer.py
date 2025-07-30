@@ -92,3 +92,43 @@ def test_batch_analyzer(input_type, y_type, n_drifts, data_format, with_default)
     assert hasattr(report, "concepts")
     assert isinstance(report.concepts, list)
     assert len(report.concepts) == n_drifts + 1
+
+
+def test_batch_analyzer_null_columns():
+    """
+    Test the BatchDataDriftAnalyzer with various input types, y types, number of drifts, and data formats.
+    """
+    n_samples = 300
+    n_cont = 0
+    n_cat = 0
+
+    X, y, continuous_columns, categorical_columns, y_categorical = build_data(
+        input_type="cont",
+        y_type="cont",
+        n_drifts=1,
+        n_samples=n_samples,
+        n_cont=n_cont,
+        n_cat=n_cat,
+        data_format="pandas",
+        seed=2,
+    )
+
+    continuous_algo = BonferroniCorrectionAlgorithm(algorithm=KSAlgorithm(p_value=0.05))
+    categorical_algo = BonferroniCorrectionAlgorithm(
+        algorithm=ChiSquareAlgorithm(p_value=0.05)
+    )
+
+    analyzer = BatchDataDriftAnalyzer(
+        continuous_monitoring_algorithm=continuous_algo,
+        categorical_monitoring_algorithm=categorical_algo,
+        batch_size=50,
+    )
+
+    with pytest.raises(ValueError):
+        analyzer.analyze(
+            X,
+            y=y,
+            continuous_columns=None,
+            categorical_columns=None,
+            y_categorical=y_categorical,
+        )

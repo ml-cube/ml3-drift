@@ -2,9 +2,15 @@ from typing import Callable
 
 import numpy as np
 from ml3_drift.enums.monitoring import DataDimension, DataType, MonitoringType
-from ml3_drift.models.monitoring import DriftInfo, MonitoringAlgorithmSpecs, MonitoringOutput
+from ml3_drift.models.monitoring import (
+    DriftInfo,
+    MonitoringAlgorithmSpecs,
+    MonitoringOutput,
+)
 from ml3_drift.monitoring.base.base_univariate import UnivariateMonitoringAlgorithm
-from ml3_drift.monitoring.base.online_monitorning_algorithm import OnlineMonitorningAlgorithm
+from ml3_drift.monitoring.base.online_monitorning_algorithm import (
+    OnlineMonitorningAlgorithm,
+)
 from river.drift.kswin import KSWIN as RiverKSWIN
 
 
@@ -30,9 +36,7 @@ class KSWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         self.stat_size = stat_size
         self.seed = seed
         super().__init__(comparison_size=1, callbacks=callbacks)
-        
-        
-        
+
     def _reset_internal_parameters(self):
         self.drift_agent = RiverKSWIN(
             alpha=self.p_value,
@@ -40,15 +44,14 @@ class KSWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
             stat_size=self.stat_size,
             seed=self.seed,
         )
+
     def _fit(self, X: np.ndarray):
         """Fit the KSWIN algorithm to the data."""
         self._validate(X)
         self.reset_internal_parameters()
         self.is_fitted = True
+
     def _detect(self):
         self.drift_agent.update(self.comparison_data)
         drift_detected = self.drift_agent.drift_detected
         return MonitoringOutput(drift_detected=drift_detected, drift_info=None)
-
-
-

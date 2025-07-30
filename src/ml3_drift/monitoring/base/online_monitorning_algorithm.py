@@ -1,5 +1,3 @@
-
-
 from abc import ABC
 from typing import Callable
 
@@ -69,7 +67,7 @@ class OnlineMonitorningAlgorithm(MonitoringAlgorithm, ABC):
             detection_output.append(self._detect())
 
         return detection_output
-    
+
     def detect(self, X: np.ndarray) -> list[MonitoringOutput]:
         """
         Analyze the provided data samples against the reference dataset
@@ -94,9 +92,9 @@ class OnlineMonitorningAlgorithm(MonitoringAlgorithm, ABC):
             raise ValueError(
                 "Comparison size must be defined for online monitoring algorithms."
             )
-            
+
         detection_output = self._online_detect(X)
-    
+
         if self.has_callbacks:
             for sample_output in detection_output:
                 if sample_output.drift_detected:

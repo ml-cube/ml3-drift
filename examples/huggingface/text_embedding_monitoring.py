@@ -3,7 +3,9 @@ import logging
 from ml3_drift.huggingface.drift_detection_pipeline import (
     HuggingFaceDriftDetectionPipeline,
 )
-from ml3_drift.monitoring.algorithms.batch.bonferroni import BonferroniCorrectionAlgorithm
+from ml3_drift.monitoring.algorithms.batch.bonferroni import (
+    BonferroniCorrectionAlgorithm,
+)
 from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
 from ml3_drift.callbacks.base import logger_callback
 

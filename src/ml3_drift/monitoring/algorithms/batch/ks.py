@@ -9,10 +9,12 @@ from ml3_drift.models.monitoring import (
     MonitoringOutput,
 )
 from ml3_drift.monitoring.base.base_univariate import UnivariateMonitoringAlgorithm
-from ml3_drift.monitoring.base.batch_monitoring_algorithm import BatchMonitoringAlgorithm
+from ml3_drift.monitoring.base.batch_monitoring_algorithm import (
+    BatchMonitoringAlgorithm,
+)
 
 
-class KSAlgorithm(BatchMonitoringAlgorithm,UnivariateMonitoringAlgorithm):
+class KSAlgorithm(BatchMonitoringAlgorithm, UnivariateMonitoringAlgorithm):
     """Monitoring algorithm based on the Kolmogorov-Smirnov statistic test.
 
     Parameters

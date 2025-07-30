@@ -112,21 +112,22 @@ def abrupt_univariate_drift_info():
 
     return final_error_stream, drift_point
 
+
 @pytest.fixture
 def abrupt_univariate_online_drift_info():
     """
     A tabular data source fixture, simulating a univariate abrupt drift.
     """
     np.random.seed(0)
-    data_stream = np.concatenate([
-        np.random.choice([0, 1], size=1000),
-        np.random.choice(range(4, 8), size=1000)
-    ])
+    data_stream = np.concatenate(
+        [np.random.choice([0, 1], size=1000), np.random.choice(range(4, 8), size=1000)]
+    )
     # specific drift point from 500
     drift_point_1 = 1000
     data_stream = np.array(data_stream).reshape(-1, 1)
 
     return data_stream, drift_point_1
+
 
 @pytest.fixture
 def abrupt_univariate_online_bidrift_info():
@@ -134,11 +135,13 @@ def abrupt_univariate_online_bidrift_info():
     A tabular data source fixture, simulating a univariate abrupt drift.
     """
     np.random.seed(0)
-    data_stream = np.concatenate([
-        np.random.choice([0, 1], size=1000),
-        np.random.choice(range(4, 8), size=1000),
-        np.random.choice([0, 1], size=1000)
-    ])
+    data_stream = np.concatenate(
+        [
+            np.random.choice([0, 1], size=1000),
+            np.random.choice(range(4, 8), size=1000),
+            np.random.choice([0, 1], size=1000),
+        ]
+    )
     # specific drift point from 500
     drift_point_1 = 1000
     drift_point_2 = 2000

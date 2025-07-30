@@ -9,9 +9,10 @@ from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 class BatchMonitoringAlgorithm(MonitoringAlgorithm, ABC):
     """
-    Abstract base class for offline monitoring algorithms.      
+    Abstract base class for offline monitoring algorithms.
     It implements the detect method for offline drift detection.
     """
+
     def __init__(
         self,
         comparison_size: int | None = None,
@@ -30,7 +31,7 @@ class BatchMonitoringAlgorithm(MonitoringAlgorithm, ABC):
         # Comparison data are exactly the sample provided here.
         self.comparison_data = X
         return [self._detect()]
-    
+
     def detect(self, X: np.ndarray) -> list[MonitoringOutput]:
         """
         Analyze the provided data samples against the reference dataset
@@ -50,9 +51,9 @@ class BatchMonitoringAlgorithm(MonitoringAlgorithm, ABC):
             )
 
         self._validate(X)
-            
+
         detection_output = self._offline_detect(X)
-    
+
         if self.has_callbacks:
             for sample_output in detection_output:
                 if sample_output.drift_detected:

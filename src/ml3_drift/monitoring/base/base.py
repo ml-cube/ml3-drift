@@ -127,7 +127,7 @@ class MonitoringAlgorithm(ABC):
     @abstractmethod
     def _detect(self) -> MonitoringOutput:
         pass
-    
+
     @abstractmethod
     def detect(self, X: np.ndarray) -> list[MonitoringOutput]:
         """
