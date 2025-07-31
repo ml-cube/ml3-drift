@@ -12,7 +12,12 @@ from ml3_drift.monitoring.base.base_univariate import UnivariateMonitoringAlgori
 from ml3_drift.monitoring.base.online_monitorning_algorithm import (
     OnlineMonitorningAlgorithm,
 )
-from river.drift.page_hinkley import PageHinkley as RiverPageHinkley
+
+RIVER = True
+try:
+    from river.drift.page_hinkley import PageHinkley as RiverPageHinkley
+except ModuleNotFoundError:
+    RIVER = False
 
 
 class PageHinkley(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
@@ -33,7 +38,13 @@ class PageHinkley(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         threshold: int = 50,
         mode: str = "both",
         seed: int | None = None,
+        *args,
+        **kwargs,
     ) -> None:
+        if not RIVER:
+            raise ModuleNotFoundError(
+                "River library is required for PageHinkley algorithm. Please install it using pip install/ uv add ml3-drift[river]"
+            )
         self.min_instances = min_instances
         self.delta = delta
         self.alpha = alpha

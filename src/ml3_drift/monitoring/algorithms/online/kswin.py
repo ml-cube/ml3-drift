@@ -11,7 +11,12 @@ from ml3_drift.monitoring.base.base_univariate import UnivariateMonitoringAlgori
 from ml3_drift.monitoring.base.online_monitorning_algorithm import (
     OnlineMonitorningAlgorithm,
 )
-from river.drift.kswin import KSWIN as RiverKSWIN
+
+RIVER = True
+try:
+    from river.drift.kswin import KSWIN as RiverKSWIN
+except ModuleNotFoundError:
+    RIVER = False
 
 
 class KSWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
@@ -30,7 +35,13 @@ class KSWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         window_size: int = 100,
         stat_size: int = 30,
         seed: int | None = None,
+        *args,
+        **kwargs,
     ) -> None:
+        if not RIVER:
+            raise ModuleNotFoundError(
+                "River library is required for KSWIN algorithm. Please install it using pip install/ uv add ml3-drift[river]"
+            )
         self.p_value = p_value
         self.window_size = window_size
         self.stat_size = stat_size

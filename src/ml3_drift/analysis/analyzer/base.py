@@ -160,7 +160,7 @@ class DataDriftAnalyzer(ABC):
         else:
             categorical_columns_ids = []
 
-        if len(continuous_columns_ids) == 0 and len(categorical_columns_ids) == 0:
+        if not continuous_columns_ids and not categorical_columns_ids:
             raise ValueError(
                 "At least one of continuous_columns or categorical_columns must be provided."
             )

@@ -808,15 +808,12 @@ name = "ml3-drift"
 version = "0.0.4"
 source = { editable = "." }
 dependencies = [
-    { name = "river" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy", version = "1.16.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 
 [package.optional-dependencies]
 huggingface = [
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scipy", version = "1.16.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "transformers", extra = ["torch"] },
 ]
 pandas = [
@@ -824,6 +821,9 @@ pandas = [
 ]
 polars = [
     { name = "polars" },
+]
+river = [
+    { name = "river" },
 ]
 sklearn = [
     { name = "scikit-learn" },
@@ -858,10 +858,9 @@ docs = [
 requires-dist = [
     { name = "pandas", marker = "extra == 'pandas'", specifier = ">=2.2.3" },
     { name = "polars", marker = "extra == 'polars'", specifier = ">=1.31.0" },
-    { name = "river", specifier = ">=0.22.0" },
+    { name = "river", marker = "extra == 'river'", specifier = ">=0.22.0" },
     { name = "scikit-learn", marker = "extra == 'sklearn'", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.15.3" },
-    { name = "scipy", marker = "extra == 'huggingface'", specifier = ">=1.15.2" },
     { name = "transformers", extras = ["torch"], marker = "extra == 'huggingface'", specifier = ">=4.52.3" },
 ]
 

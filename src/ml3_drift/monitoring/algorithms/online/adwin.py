@@ -11,7 +11,12 @@ from ml3_drift.monitoring.base.base_univariate import UnivariateMonitoringAlgori
 from ml3_drift.monitoring.base.online_monitorning_algorithm import (
     OnlineMonitorningAlgorithm,
 )
-from river.drift.adwin import ADWIN as RiverADWIN
+
+RIVER = True
+try:
+    from river.drift.adwin import ADWIN as RiverADWIN
+except ModuleNotFoundError:
+    RIVER = False
 
 
 class ADWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
@@ -31,7 +36,13 @@ class ADWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         max_buckets: int = 5,
         min_window_length: int = 5,
         grace_period: int = 10,
+        *args,
+        **kwargs,
     ) -> None:
+        if not RIVER:
+            raise ModuleNotFoundError(
+                "River library is required for ADWIN algorithm. Please install it using pip install/ uv add ml3-drift[river]"
+            )
         self.p_value = p_value
         self.clock = clock
         self.max_buckets = max_buckets

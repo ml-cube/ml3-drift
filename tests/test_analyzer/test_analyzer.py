@@ -109,7 +109,7 @@ def test_batch_analyzer_null_columns():
         n_samples=n_samples,
         n_cont=n_cont,
         n_cat=n_cat,
-        data_format="pandas",
+        data_format="numpy",
         seed=2,
     )
 

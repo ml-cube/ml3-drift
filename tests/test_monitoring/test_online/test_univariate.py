@@ -1,7 +1,17 @@
+import pytest
+from tests.conftest import is_module_available
 import numpy as np
 from ml3_drift.monitoring.algorithms.online.adwin import ADWIN
 from ml3_drift.monitoring.algorithms.online.kswin import KSWIN
 from ml3_drift.monitoring.algorithms.online.page_hinkley import PageHinkley
+
+if not is_module_available("river"):
+    with pytest.raises(ModuleNotFoundError):
+        ADWIN()
+        KSWIN()
+        PageHinkley()
+    # Prevent tests from running if sklearn is not available
+    pytest.skip(allow_module_level=True)
 
 
 class TestContinuousUnivariateOnlineAlgorithms:
