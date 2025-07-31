@@ -12,7 +12,7 @@ class MultivariateMonitoringAlgorithm(MonitoringAlgorithm, ABC):
     """
 
     def _is_valid(self, X: np.ndarray) -> tuple[bool, str]:
-        if X.shape[1] > 1:
+        if X.shape[1] >= 1:
             return True, ""
         else:
             return False, f"X must be multi-dimensional vector. Got {X.shape}"

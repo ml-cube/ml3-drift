@@ -48,7 +48,9 @@ class KSWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         self.seed = seed
         self._args = args
         self._kwargs = kwargs
-        super().__init__(comparison_size=1, callbacks=callbacks)
+        super().__init__(
+            comparison_size=1, callbacks=callbacks
+        )  # since we add only one sample per step and river handles building the window internally we set comparison_size to 1
 
     def _reset_internal_parameters(self):
         self.drift_agent = RiverKSWIN(
@@ -57,7 +59,7 @@ class KSWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
             stat_size=self.stat_size,
             seed=self.seed,
             *self._args,
-            **self._kwargs
+            **self._kwargs,
         )
 
     def _fit(self, X: np.ndarray):

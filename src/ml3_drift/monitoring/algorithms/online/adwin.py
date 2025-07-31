@@ -50,8 +50,9 @@ class ADWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         self.grace_period = grace_period
         self._args = args
         self._kwargs = kwargs
-        super().__init__(comparison_size=1, callbacks=callbacks)
-        
+        super().__init__(
+            comparison_size=1, callbacks=callbacks
+        )  # since we add only one sample per step and river handles building the window internally we set comparison_size to 1
 
     def _reset_internal_parameters(self):
         self.drift_agent = RiverADWIN(
@@ -61,7 +62,7 @@ class ADWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
             min_window_length=self.min_window_length,
             grace_period=self.grace_period,
             *self._args,
-            **self._kwargs
+            **self._kwargs,
         )
 
     def _fit(self, X: np.ndarray):

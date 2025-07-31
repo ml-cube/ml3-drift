@@ -53,7 +53,9 @@ class PageHinkley(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         self.seed = seed
         self._args = args
         self._kwargs = kwargs
-        super().__init__(callbacks=callbacks, comparison_size=1)
+        super().__init__(
+            callbacks=callbacks, comparison_size=1
+        )  # since we add only one sample per step and river handles building the window internally we set comparison_size to 1
 
     def _reset_internal_parameters(self):
         self.drift_agent = RiverPageHinkley(
@@ -63,7 +65,7 @@ class PageHinkley(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
             threshold=self.threshold,
             mode=self.mode,
             *self._args,
-            **self._kwargs
+            **self._kwargs,
         )
 
     def _fit(self, X: np.ndarray):
