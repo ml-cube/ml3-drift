@@ -46,6 +46,8 @@ class KSWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
         self.window_size = window_size
         self.stat_size = stat_size
         self.seed = seed
+        self._args = args
+        self._kwargs = kwargs
         super().__init__(comparison_size=1, callbacks=callbacks)
 
     def _reset_internal_parameters(self):
@@ -54,6 +56,8 @@ class KSWIN(OnlineMonitorningAlgorithm, UnivariateMonitoringAlgorithm):
             window_size=self.window_size,
             stat_size=self.stat_size,
             seed=self.seed,
+            *self._args,
+            **self._kwargs
         )
 
     def _fit(self, X: np.ndarray):

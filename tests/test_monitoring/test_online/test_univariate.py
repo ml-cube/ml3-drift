@@ -6,10 +6,10 @@ from ml3_drift.monitoring.algorithms.online.kswin import KSWIN
 from ml3_drift.monitoring.algorithms.online.page_hinkley import PageHinkley
 
 if not is_module_available("river"):
-    with pytest.raises(ModuleNotFoundError):
-        ADWIN()
-        KSWIN()
-        PageHinkley()
+    for alg in [ADWIN, KSWIN, PageHinkley]:
+        # If River is not available, we expect the algorithms to raise a ModuleNotFoundError
+        with pytest.raises(ModuleNotFoundError):
+            alg()
     # Prevent tests from running if sklearn is not available
     pytest.skip(allow_module_level=True)
 
