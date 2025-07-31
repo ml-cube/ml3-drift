@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin, check_is_fitted
 from sklearn.utils.validation import validate_data
 from ml3_drift.enums.monitoring import DataDimension, DataType
-from ml3_drift.monitoring.base import MonitoringAlgorithm
+from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 from copy import deepcopy
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
+from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
 
 
 def test_ks():

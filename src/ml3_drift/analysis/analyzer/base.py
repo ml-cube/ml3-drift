@@ -4,12 +4,14 @@ from typing import TYPE_CHECKING, Union
 from typing_extensions import TypeIs
 
 from ml3_drift.analysis.report import Report
-from ml3_drift.monitoring.base import MonitoringAlgorithm
-from ml3_drift.monitoring.multivariate.bonferroni import BonferroniCorrectionAlgorithm
-from ml3_drift.monitoring.univariate.continuous.ks import KSAlgorithm
-from ml3_drift.monitoring.univariate.discrete.chi_square import (
+from ml3_drift.monitoring.algorithms.batch.bonferroni import (
+    BonferroniCorrectionAlgorithm,
+)
+from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
+from ml3_drift.monitoring.algorithms.batch.chi_square import (
     ChiSquareAlgorithm,
 )
+from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -158,6 +160,10 @@ class DataDriftAnalyzer(ABC):
         else:
             categorical_columns_ids = []
 
+        if not continuous_columns_ids and not categorical_columns_ids:
+            raise ValueError(
+                "At least one of continuous_columns or categorical_columns must be provided."
+            )
         # Input and target in canonical form
         array_X = self._to_numpy(X)
 

@@ -4,7 +4,7 @@ import numpy as np
 
 from ml3_drift.analysis.analyzer.base import DataDriftAnalyzer
 from ml3_drift.analysis.report import Report
-from ml3_drift.monitoring.base import MonitoringAlgorithm
+from ml3_drift.monitoring.base.base import MonitoringAlgorithm
 
 from ml3_drift.models.monitoring import (
     MonitoringOutput,
@@ -74,7 +74,7 @@ class BatchDataDriftAnalyzer(DataDriftAnalyzer):
         y_categorical: bool,
         first_batch_indexes: tuple[int, int],
         second_batch_indexes: tuple[int, int],
-    ) -> tuple[MonitoringOutput, MonitoringOutput]:
+    ) -> tuple[MonitoringOutput | None, MonitoringOutput | None]:
         """
         Inner helper method that performs a single scan of two batches
         """
@@ -95,16 +95,20 @@ class BatchDataDriftAnalyzer(DataDriftAnalyzer):
             y_categorical,
             second_batch_indexes,
         )
-
-        cont_algorithm = deepcopy(self.continuous_monitoring_algorithm).fit(
-            first_batch_cont
-        )
-        cat_algorithm = deepcopy(self.categorical_monitoring_algorithm).fit(
-            first_batch_cat
-        )
-
-        cont_output = cont_algorithm.detect(second_batch_cont)[0]
-        cat_output = cat_algorithm.detect(second_batch_cat)[0]
+        if len(continuous_columns_ids) > 0:
+            cont_algorithm = deepcopy(self.continuous_monitoring_algorithm).fit(
+                first_batch_cont
+            )
+            cont_output = cont_algorithm.detect(second_batch_cont)[0]
+        else:
+            cont_output = None
+        if len(categorical_columns_ids) > 0:
+            cat_algorithm = deepcopy(self.categorical_monitoring_algorithm).fit(
+                first_batch_cat
+            )
+            cat_output = cat_algorithm.detect(second_batch_cat)[0]
+        else:
+            cat_output = None
 
         return cont_output, cat_output
 
@@ -149,7 +153,9 @@ class BatchDataDriftAnalyzer(DataDriftAnalyzer):
                 next_batch_indexes,
             )
 
-            if cont_output.drift_detected | cat_output.drift_detected:
+            if (cont_output is not None and cont_output.drift_detected) | (
+                cat_output is not None and cat_output.drift_detected
+            ):
                 # if a drift is detected then, we close the current batch and open a new one
                 merged_batches.append(
                     (current_batch_start, current_batch_indexes[1] - 1)
@@ -181,7 +187,10 @@ class BatchDataDriftAnalyzer(DataDriftAnalyzer):
 
             # if no drift is detected the two batches are considered to belong to the same distribution
             # and are added to the same distribution list
-            if not (cont_output.drift_detected | cat_output.drift_detected):
+            if not (
+                (cont_output is not None and cont_output.drift_detected)
+                | (cat_output is not None and cat_output.drift_detected)
+            ):
                 same_distributions[pair[0]].append(pair[1])
 
         return Report(concepts=merged_batches, same_distributions=same_distributions)
