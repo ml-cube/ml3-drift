@@ -16,6 +16,7 @@ if not is_module_available("river"):
 
 class TestContinuousUnivariateOnlineAlgorithms:
     def test_kswin_univariate_one_drift(self, abrupt_univariate_online_drift_info):
+        np.random.seed(42)
         data_stream, drift_point_1 = abrupt_univariate_online_drift_info
         kswin_detector = KSWIN(p_value=0.0001)
         kswin_detector.fit(data_stream)

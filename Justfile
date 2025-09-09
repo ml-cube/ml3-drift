@@ -83,7 +83,7 @@ serve-docs:
 # --------------------------------------------------
 # Publishing
 publish new_version:
-	# just publish new_version=0.0.1
+	# just publish 0.0.1
 	# The __version__ variable in src/ml3_drift/__init__.py must be updated manually as of now.
 	# The build tool retrieves it from there.
 	# We'll fix this soon :)

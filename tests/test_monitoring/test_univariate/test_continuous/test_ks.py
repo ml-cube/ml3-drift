@@ -5,7 +5,7 @@ from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
 
 def test_ks():
     """This test defines two univariate Gaussian distributions"""
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(42)
 
     mu_0, sigma_0 = 1.4, 0.4
     mu_1, sigma_1 = 2.4, 0.5
