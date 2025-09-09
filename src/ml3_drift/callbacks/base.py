@@ -1,9 +1,11 @@
+import dataclasses
 from logging import Logger
-from ml3_drift.callbacks.models import DriftInfo
+
+from ml3_drift.models.monitoring import DriftInfo
 
 
 def logger_callback(
-    drift_info: DriftInfo,
+    drift_info: DriftInfo | None,
     logger: Logger,
     level: int,
 ) -> None:
@@ -20,14 +22,24 @@ def logger_callback(
     """
 
     if drift_info is None:
-        logger.log(level, "Drift Detected!")
+        logger.log(level, "Drift Detected, no drift info provided!")
         return
-    msg = f"Drift detected on feature at index {drift_info.feature_index} by drift detector {drift_info.drift_detector}."
 
-    if drift_info.p_value is not None:
-        msg += f"\n p-value = {drift_info.p_value}"
+    logger.log(level, f"Drift Detected, drift info: {dataclasses.asdict(drift_info)}")
 
-    if drift_info.threshold is not None:
-        msg += f"\n Threshold = {drift_info.threshold}"
 
-    logger.log(level, msg)
+def print_callback(drift_info: DriftInfo | None) -> None:
+    """
+    Print callback prints a message to the console when drift is detected.
+    It should be used only for testing purposes.
+
+    Example
+    -------
+
+    callback = print_callback
+    """
+    if drift_info is None:
+        print("Drift Detected, no drift info provided!")
+        return
+
+    print(f"Drift Detected, drift info: {dataclasses.asdict(drift_info)}")

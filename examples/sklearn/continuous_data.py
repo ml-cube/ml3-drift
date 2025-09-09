@@ -1,26 +1,30 @@
 import logging
 
 import numpy as np
-from ml3_drift.sklearn.univariate.ks import KSDriftDetector
+from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from ml3_drift.callbacks.base import logger_callback
 from functools import partial
 
+from ml3_drift.sklearn.base import SklearnDriftDetector
+
 logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
     # Define your pipeline as usual, but also add a drift detector
-    drift_detector = KSDriftDetector(
-        callbacks=[
-            partial(
-                logger_callback,
-                logger=logger,
-                level=logging.CRITICAL,
-            )
-        ]
+    drift_detector = SklearnDriftDetector(
+        KSAlgorithm(
+            callbacks=[
+                partial(
+                    logger_callback,
+                    logger=logger,
+                    level=logging.CRITICAL,
+                )
+            ]
+        )
     )
 
     pipeline = Pipeline(

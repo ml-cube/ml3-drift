@@ -40,6 +40,7 @@ class TestContinuousUnivariateOnlineAlgorithms:
         )
 
     def test_kswin_univariate_two_drift(self, abrupt_univariate_online_bidrift_info):
+        np.random.seed(42)
         data_stream, drift_point_1, drift_point_2 = (
             abrupt_univariate_online_bidrift_info
         )
