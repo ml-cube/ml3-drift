@@ -19,8 +19,8 @@
 
 `ml3-drift` is an open source AI library that provides seamless integration of drift detection algorithms and techniques into Data Science Workflows. It does so by providing 3 main modules:
 - 🤖 **Monitoring Algorithms**: a collection of univariate and multivariate drift detection algorithms, both for batch and online settings. Some of them are implemented from scratch, while others are wrappers around existing libraries.
-- 🧩 **Framework Integrations**: this components allows the integration of drift detection algorithms into existing Machine Learning and AI frameworks, such as `scikit-learn` and `transformers (huggingface)`. This enables developers to easily add drift detection to their existing pipelines with minimal code changes.
-- 📊 **Distribution Analyzers**: a set of tools for analyzing the distribution of data and detecting drifts over time in a given static dataset.
+- 🧩 **Framework Integrations**: these components allow the integration of drift detection algorithms into existing Machine Learning and AI frameworks, such as `scikit-learn` and `transformers (huggingface)`. This enables developers to easily add drift detection to their existing pipelines with minimal code changes.
+- 📊 **Distribution Analyzers**: a set of tools for analyzing the distribution of data and detecting drifts in a given dataset.
 
 ## ✅ Features
 
@@ -134,10 +134,10 @@ You can find other examples in the [examples](https://github.com/ml-cube/ml3-dri
 
 ### Distribution Analyzers
 
-This module provides tools for analyzing the distributions present in a static dataset. This helps understanding the data and highlighting potential issues that might arise when using it to train a model.
+This module provides tools for identifying distribution shifts within a given dataset. This helps understanding the data and highlighting potential issues that might arise when using it to train a model.
 
 We currently provide 2 analyzers: one is batch-based, the other is online-based. They work in a similar way but have a slightly different approach. They both accept a couple of monitoring algorithms, one for continuous features and one for categorical features, but:
-- the [Batch analyzer](src/ml3_drift/analysis/analyzer/batch.py) 📦 splits the dataset into subsets of a given size and compares each subset with the others in other to identify macro-batches of data belonging to different distributions. It is also able to identify recurring distributions, i.e. a distribution that appears multiple times (but not in a contiguous way) in the dataset.
+- the [Batch analyzer](src/ml3_drift/analysis/analyzer/batch.py) 📦 splits the dataset into subsets of a given size and compares each subset with the others in order to identify macro-batches of data belonging to different distributions. It is also able to identify recurring distributions, i.e. a distribution that appears multiple times (but not in a contiguous way) in the dataset.
 - the [Online analyzer](src/ml3_drift/analysis/analyzer/online.py) 🌊 processes the dataset in a sequential way, creating sliding windows of contiguous samples. If a drift is detected, the dataset is "split" and the algorithms reset on the new data. The output is a more granular view of the distribution changes over time. However, it is not able to identify recurring distributions. Notice this class hasn't been tested yet, use it at your own risk :).
 
 #### Example
