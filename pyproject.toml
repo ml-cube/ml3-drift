@@ -7,19 +7,28 @@ dynamic = ["version"]
 license = { text = "Apache-2.0" }
 readme = "README.md"
 
-dependencies = []
+dependencies = [
+    "scipy>=1.15.3",
+]
 
 # -------------------------------------------------
 # Extra dependencies. This package is designed to be
-# used within one extra at a time, hence we check each
-# extra separately. Remember to update the list of extras
-# in the validation action to ensure tests are run
+# used with different libraries, which means that our code
+# should work only when not all extras are installed.
+# Remember to update the list of extras
+# in the validation CICD to ensure tests are run
 # for your new extra
 [project.optional-dependencies]
 
 sklearn = ["scikit-learn>=1.6.1"]
 
-huggingface = ["scipy>=1.15.2", "transformers[torch]>=4.52.3"]
+huggingface = ["transformers[torch]>=4.52.3"]
+
+polars = ["polars>=1.31.0"]
+
+pandas = ["pandas>=2.2.3"]
+
+river = ["river>=0.22.0"]
 
 
 # -------------------------------------------------
@@ -28,12 +37,19 @@ huggingface = ["scipy>=1.15.2", "transformers[torch]>=4.52.3"]
 dev = [
     "ipykernel>=6.29.5",
     "mypy>=1.15.0",
-    "pillow>=11.2.1",      # for image support in tests
     "pre-commit>=4.1.0",
     "pytest>=8.3.4",
     "pytest-xdist>=3.6.1",
     "ruff>=0.9.5",
-    # for docs
+    # for image support in tests
+    "pillow>=11.2.1",
+]
+
+docs = [
+    "mkdocs-minify-plugin>=0.7.1",
+    "mkdocs-glightbox>=0.3.4",
+    "mkdocs-table-reader-plugin>=2.0.1",
+    "mkdocs-macros-plugin",
     "mkdocs>=1.5.0",
     "mkdocs-material>=9.5.0",
     "mkdocs-material-extensions>=1.1",
@@ -41,12 +57,14 @@ dev = [
     "pymdown-extensions>=9.9.1",
     "jinja2>=3.0",
     "markdown>=3.2",
-    "mkdocs-minify-plugin>=0.7.1",
-    "mkdocs-glightbox>=0.3.4",
-    "mkdocs-table-reader-plugin>=2.0.1",
-    "mkdocs-macros-plugin",
     "openpyxl",
 ]
+
+# -------------------------------------------------
+
+# Default groups for uv
+[tool.uv]
+default-groups = ["dev"]
 
 # -------------------------------------------------
 
@@ -56,3 +74,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.version]
 path = "src/ml3_drift/__init__.py"
+
+
+# Set pytest folder
+[tool.pytest.ini_options]
+testpaths = ["tests"]

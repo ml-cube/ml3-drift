@@ -18,6 +18,10 @@ def logger_callback(
 
     callback = partial(logger_callback, logger=logging.getLogger("drift_callback"), level=logging.INFO)
     """
+
+    if drift_info is None:
+        logger.log(level, "Drift Detected!")
+        return
     msg = f"Drift detected on feature at index {drift_info.feature_index} by drift detector {drift_info.drift_detector}."
 
     if drift_info.p_value is not None:
