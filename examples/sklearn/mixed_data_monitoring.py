@@ -1,7 +1,7 @@
 from functools import partial
 import logging
-from ml3_drift.sklearn.univariate.ks import KSDriftDetector
-from ml3_drift.sklearn.univariate.chi_square import ChiSquareDriftDetector
+from ml3_drift.monitoring.algorithms.batch.ks import KSAlgorithm
+from ml3_drift.monitoring.algorithms.batch.chi_square import ChiSquareAlgorithm
 
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
@@ -9,6 +9,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OrdinalEncoder
 import numpy as np
 from ml3_drift.callbacks.base import logger_callback
+from ml3_drift.sklearn.base import SklearnDriftDetector
 
 
 logger = logging.getLogger(__name__)
@@ -51,27 +52,31 @@ if __name__ == "__main__":
         transformers=[
             (
                 "cont",
-                KSDriftDetector(
-                    callbacks=[
-                        partial(
-                            logger_callback,
-                            logger=logger,
-                            level=logging.CRITICAL,
-                        ),
-                    ]
+                SklearnDriftDetector(
+                    KSAlgorithm(
+                        callbacks=[
+                            partial(
+                                logger_callback,
+                                logger=logger,
+                                level=logging.CRITICAL,
+                            ),
+                        ]
+                    )
                 ),
                 [0, 1],
             ),
             (
                 "cat",
-                ChiSquareDriftDetector(
-                    callbacks=[
-                        partial(
-                            logger_callback,
-                            logger=logger,
-                            level=logging.CRITICAL,
-                        ),
-                    ]
+                SklearnDriftDetector(
+                    ChiSquareAlgorithm(
+                        callbacks=[
+                            partial(
+                                logger_callback,
+                                logger=logger,
+                                level=logging.CRITICAL,
+                            ),
+                        ]
+                    )
                 ),
                 [2, 3],
             ),
