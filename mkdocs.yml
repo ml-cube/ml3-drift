@@ -134,17 +134,23 @@ nav:
 
   # Concepts section:
   # This section should explain the core concepts of the project.
-  # Experienced people might should not need this section.
+  # Experienced people should not need this section.
   - Concepts:
     - Drift Detection: concepts/drift_detection.md
+    - Distribution Analyzers: concepts/distribution_analyzers.md
     - Callbacks: concepts/callbacks.md
 
   # Algorithms section:
   # This section has an entry for each algorithm supported by the project.
   # We should explain how it works and how to use it.
   - Algorithms:
-      - KS Detector: algorithms/ks_detector.md
-      - Chi-Square Detector: algorithms/cs_detector.md
+      - Overview: algorithms/overview.md
+      - KS Detector: algorithms/ks.md
+      - Chi-Square Detector: algorithms/cs.md
+      - Bonferroni Correction Detector: algorithms/bonferroni.md
+      - ADWIN: algorithms/adwin.md
+      - EDDM: algorithms/eddm.md
+      - Page-Hinkley: algorithms/page_hinkley.md
 
   # Frameworks section:
   # This section has an entry for each framework supported by the project.

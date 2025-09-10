@@ -2,6 +2,54 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://ml-cube.github.io/ml3-drift/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/about/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/api_doc/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/algorithms/cs_detector/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/algorithms/ks_detector/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/concepts/callbacks/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/concepts/drift_detection/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/examples/mixed_data/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/examples/text_data/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/frameworks/overview/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/frameworks/sklearn/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/frameworks/transformers/</loc>
+         <lastmod>2025-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://ml-cube.github.io/ml3-drift/get_started/install/</loc>
+         <lastmod>2025-09-10</lastmod>
     </url>
 </urlset>
